@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "@types/supertest": "^7.2.0",
+    "isomorphic-dompurify": "^3.0.0",
+    "supertest": "^7.2.2"
+  }
+}
