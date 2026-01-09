@@ -9,8 +9,10 @@ export async function processCodeSubmission(formData: FormData) {
 
     // Валидация
     if (!code || code.trim().length < 10) {
-        // Не возвращаем объект, а кидаем ошибку, чтобы не ломать типы формы
-        throw new Error("Code is too short"); 
+        return {
+            error: "Code is too short",
+            success: false
+        };
     }
 
     let id: string | null = null;
@@ -41,10 +43,18 @@ export async function processCodeSubmission(formData: FormData) {
 
     } catch (e) {
         console.error("Server Action Error:", e);
-        throw e; 
+        return {
+            error: e instanceof Error ? e.message : "An error occurred",
+            success: false
+        };
     }
 
     if (id) {
         redirect(`/result/${id}`);
     }
+
+    return {
+        success: true,
+        id
+    };
 }

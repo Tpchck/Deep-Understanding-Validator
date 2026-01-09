@@ -1,6 +1,33 @@
-import { processCodeSubmission } from "@/actions/submit-code";
+'use client';
 
-export default function Home() { // async не обязателен, если внутри нет await
+import { processCodeSubmission } from "@/actions/submit-code";
+import { useState } from "react";
+
+export default function Home() {
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (formData: FormData) => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await processCodeSubmission(formData);
+      
+      // Если сервер вернул ошибку
+      if (!result.success) {
+        setError(result.error || "An error occurred");
+        setLoading(false);
+        return;
+      }
+
+      // Успех - перенаправление происходит через redirect()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
@@ -8,21 +35,29 @@ export default function Home() { // async не обязателен, если в
           DUV: Deep Understanding Validator
         </h1>
         
-        {/* ИСПРАВЛЕНИЕ: Передаем ссылку на функцию напрямую */}
-        <form action={processCodeSubmission} className="w-full max-w-2xl mx-auto flex flex-col gap-4">
+        <form action={handleSubmit} className="w-full max-w-2xl mx-auto flex flex-col gap-4">
           <div className="relative">
             <textarea
               name="code"
               placeholder="// Paste your C++, Python, or Java code here..."
               className="w-full h-64 p-4 rounded-lg bg-neutral-900 border border-neutral-800 text-green-400 font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               required
+              disabled={loading}
             />
           </div>
+
+          {error && (
+            <div className="p-4 rounded-lg bg-red-900/20 border border-red-700 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="rounded-lg bg-white px-8 py-3 text-black font-bold hover:bg-gray-200 transition-colors"
+            disabled={loading}
+            className="rounded-lg bg-white px-8 py-3 text-black font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            INITIATE ANALYSIS_
+            {loading ? "ANALYZING..." : "INITIATE ANALYSIS_"}
           </button>
         </form>
       </div>
