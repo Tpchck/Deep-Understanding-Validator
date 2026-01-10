@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DUV: Deep Understanding Validator
 
-## Getting Started
+AI-powered code analysis platform that validates and explains code through intelligent feedback.
 
-First, run the development server:
+## 🚀 Features
+
+- **Multi-language support** - C++, Python, Java code analysis
+- **AI-powered analysis** - Google Gemini & Groq LLM integration
+- **Authentication** - Secure user accounts with Supabase
+- **Code submission & results** - Submit code and receive detailed analysis
+- **Dashboard** - Track your code submissions and history
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS
+- **Backend:** Next.js API routes, Server Actions
+- **Database:** Supabase (PostgreSQL)
+- **AI Models:** Google Generative AI, Groq SDK
+- **Auth:** Supabase SSR
+
+## 📦 Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to start using the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/app` - Next.js app router pages and layouts
+- `/components` - Reusable React components
+- `/lib` - Utility functions and API clients
+- `/actions` - Server actions for code submission
+- `/types` - TypeScript type definitions
 
-## Learn More
+## ✨ MVP Features
 
-To learn more about Next.js, take a look at the following resources:
+- Submit code for AI analysis
+- View results and feedback
+- User authentication system
+- Responsive web interface
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔧 Build & Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm start
+```
