@@ -1,13 +1,13 @@
 'use server';
 
-import { generateQuestions } from "@/lib/gemini/gemini"; // Проверь путь к файлу!
+//import { generateQuestions } from "@/lib/gemini/gemini";
+import { generateQuestions } from "@/lib/groq";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export async function processCodeSubmission(formData: FormData) {
     const code = formData.get("code") as string;
 
-    // Валидация
     if (!code || code.trim().length < 10) {
         return {
             error: "Code is too short",
@@ -43,18 +43,8 @@ export async function processCodeSubmission(formData: FormData) {
 
     } catch (e) {
         console.error("Server Action Error:", e);
-        return {
-            error: e instanceof Error ? e.message : "An error occurred",
-            success: false
-        };
+        throw (e);
     }
 
-    if (id) {
-        redirect(`/result/${id}`);
-    }
-
-    return {
-        success: true,
-        id
-    };
+    return { id, success: true };
 }

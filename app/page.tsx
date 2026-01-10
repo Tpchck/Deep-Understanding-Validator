@@ -1,11 +1,13 @@
 'use client';
 
 import { processCodeSubmission } from "@/actions/submit-code";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Home() {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (formData: FormData) => {
     setError("");
@@ -13,15 +15,9 @@ export default function Home() {
 
     try {
       const result = await processCodeSubmission(formData);
-      
-      // Если сервер вернул ошибку
-      if (!result.success) {
-        setError(result.error || "An error occurred");
-        setLoading(false);
-        return;
+      if (result.success && result.id) {
+        router.push(`/result/${result.id}`);
       }
-
-      // Успех - перенаправление происходит через redirect()
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");
       setLoading(false);
@@ -57,7 +53,7 @@ export default function Home() {
             disabled={loading}
             className="rounded-lg bg-white px-8 py-3 text-black font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "ANALYZING..." : "INITIATE ANALYSIS_"}
+            {loading ? "ANALYZING..." : "INITIATE ANALYSIS"}
           </button>
         </form>
       </div>

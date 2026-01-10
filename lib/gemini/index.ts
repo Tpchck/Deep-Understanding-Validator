@@ -3,7 +3,7 @@ import { AIResponse } from "@/types";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "fake_key");
 const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash-8b", 
+  model: "gemini-2.5-flash", 
   generationConfig: { responseMimeType: "application/json" } 
 });
 
@@ -24,7 +24,7 @@ export async function generateQuestions(code: string): Promise<AIResponse> {
           codeSnippet: "if (process.env.MOCK) return fakeData;",
           options: [
             "To ignore errors",
-            "To save API quota and speed up iteration", // Correct
+            "To save API quota and speed up iteration", 
             "Because Google hates us",
             "To make code slower"
           ],
