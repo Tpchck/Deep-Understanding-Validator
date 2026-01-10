@@ -2,7 +2,7 @@
 
 AI-powered code analysis platform that validates and explains code through intelligent feedback.
 
-## 🚀 Features
+##  Features
 
 - **Multi-language support** - C++, Python, Java code analysis
 - **AI-powered analysis** - Google Gemini & Groq LLM integration
@@ -10,7 +10,7 @@ AI-powered code analysis platform that validates and explains code through intel
 - **Code submission & results** - Submit code and receive detailed analysis
 - **Dashboard** - Track your code submissions and history
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Backend:** Next.js API routes, Server Actions
@@ -18,7 +18,7 @@ AI-powered code analysis platform that validates and explains code through intel
 - **AI Models:** Google Generative AI, Groq SDK
 - **Auth:** Supabase SSR
 
-## 📦 Quick Start
+##  Quick Start
 
 ```bash
 # Install dependencies
@@ -30,7 +30,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to start using the app.
 
-## 🏗️ Project Structure
+##  Project Structure
 
 - `/app` - Next.js app router pages and layouts
 - `/components` - Reusable React components
@@ -38,14 +38,14 @@ Open [http://localhost:3000](http://localhost:3000) to start using the app.
 - `/actions` - Server actions for code submission
 - `/types` - TypeScript type definitions
 
-## ✨ MVP Features
+##  MVP Features
 
 - Submit code for AI analysis
 - View results and feedback
 - User authentication system
 - Responsive web interface
 
-## 🔧 Build & Deploy
+##  Build & Deploy
 
 ```bash
 npm run build
