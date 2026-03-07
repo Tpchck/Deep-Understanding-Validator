@@ -20,7 +20,7 @@ const jetBrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Deep Understanding Validator",
-  description: "Mindfullness coding assistent",
+  description: "AI-powered code analysis platform that validates and explains code through intelligent feedback",
 };
 
 export default function RootLayout({

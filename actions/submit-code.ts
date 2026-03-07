@@ -1,16 +1,16 @@
 'use server';
 
-//import { generateQuestions } from "@/lib/gemini/gemini";
 import { generateQuestions } from "@/lib/groq";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { validateCodeSubmission } from "@/lib/utils";
 
 export async function processCodeSubmission(formData: FormData) {
     const code = formData.get("code") as string;
 
-    if (!code || code.trim().length < 10) {
+    const validationError = validateCodeSubmission(code);
+    if (validationError) {
         return {
-            error: "Code is too short",
+            error: validationError,
             success: false
         };
     }
