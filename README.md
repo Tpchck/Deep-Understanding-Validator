@@ -57,7 +57,7 @@ npm start
 ### Automatic branch cleanup
 
 Stale branches from closed or merged pull requests are automatically deleted
-by the **Cleanup merged branches** GitHub Actions workflow
+by the **Cleanup closed PR branches** GitHub Actions workflow
 (`.github/workflows/cleanup-branches.yml`).
 
 ### Deleting Pull Requests

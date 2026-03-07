@@ -1,4 +1,4 @@
-name: Cleanup merged branches
+name: Cleanup closed PR branches
 
 on:
   pull_request:
