@@ -51,3 +51,23 @@ Open [http://localhost:3000](http://localhost:3000) to start using the app.
 npm run build
 npm start
 ```
+
+## 🧹 Repository Maintenance
+
+### Automatic branch cleanup
+
+Stale branches from closed or merged pull requests are automatically deleted
+by the **Cleanup merged branches** GitHub Actions workflow
+(`.github/workflows/cleanup-branches.yml`).
+
+### Deleting Pull Requests
+
+GitHub **does not allow** permanent deletion of Pull Requests – this is a
+platform limitation.  Closed PRs remain visible in the repository history by
+design.  The recommended way to keep the repository tidy:
+
+1. **Enable "Automatically delete head branches"** in
+   *Settings → General → Pull Requests* so merged/closed PR branches are
+   removed immediately.
+2. The CI workflow above handles the same cleanup automatically for every
+   closed PR.
