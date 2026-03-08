@@ -52,11 +52,18 @@ Return ONLY valid JSON, no markdown:
       question: parsed.question || "Can you explain that part in more detail?",
       targetWeakness: parsed.targetWeakness || weakSpots[0] || "",
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[generate-followup] Error:", error);
+    const err = error as { status?: number; message?: string };
+    
+    let question = "Произошла техническая ошибка при генерации следующего вопроса. Не могли бы вы перефразировать ответ?";
+    if (err.status === 429) question = "[Groq API Rate Limit] Слишком много запросов. Подождите пару минут и попробуйте снова.";
+    else if (err.status === 401) question = "[Groq API Auth] Проблема с ключом доступа к ИИ.";
+    else if (err.status && err.status >= 500) question = "[Groq API Error] Серверы нейросети временно недоступны. Повторите попытку позже.";
+
     return {
-      question: "Can you explain that part in more detail?",
-      targetWeakness: weakSpots[0] || "",
+      question,
+      targetWeakness: "Unknown",
     };
   }
 }

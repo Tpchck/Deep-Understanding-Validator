@@ -83,10 +83,18 @@ export async function processCodeSubmission(formData: FormData) {
             }
 
         }
-    } catch (e) {
+    } catch (e: unknown) {
         console.error("[submit-code] Error:", e);
         const msg = e instanceof Error ? e.message : "Unknown error";
-        return { error: `Analysis failed: ${msg}`, success: false };
+        
+        // Strip out the prefix for a cleaner UI message if it's our custom error
+        let displayMsg = msg;
+        if (msg.includes("GROQ_RATE_LIMIT")) displayMsg = "API Groq перегружена: Вы превысили лимит запросов или токенов в минуту. Пожалуйста, подождите 1 минуту и попробуйте снова.";
+        else if (msg.includes("GROQ_AUTH")) displayMsg = "Ошибка авторизации: Неверный ключ Groq API.";
+        else if (msg.includes("GROQ_SERVER_ERROR")) displayMsg = "Серверы Groq временно недоступны. Повторите попытку позже.";
+        else if (msg.includes("GROQ_HALLUCINATION")) displayMsg = "Сбой нейросети: Groq вернул поврежденный ответ. Попробуйте еще раз.";
+
+        return { error: displayMsg, success: false };
     }
 
     revalidatePath("/", "layout");

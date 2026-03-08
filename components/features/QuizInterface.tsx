@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCompletion } from '@ai-sdk/react';
 import { evaluateAnswer } from '@/actions/evaluate-answer';
-import { generateFollowUp } from '@/actions/generate-followup';
 import { saveTurns } from '@/actions/save-turns';
 import type { QuizTurn } from '@/types';
 import CodeBlock from '@/components/ui/CodeBlock';
@@ -30,11 +30,27 @@ export default function QuizInterface({ sessionId, question, correctAnswer, expl
   const [turns, setTurns] = useState<QuizTurn[]>(initialTurns);
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [evaluating, setEvaluating] = useState(false);
-  const [generatingFollowUp, setGeneratingFollowUp] = useState(false);
   const [followUpQuestion, setFollowUpQuestion] = useState<string | null>(initialFollowUp);
   const [finished, setFinished] = useState(initialFinished);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const turnsRef = useRef(turns);
+  useEffect(() => { turnsRef.current = turns; }, [turns]);
+
+  const { complete, completion, isLoading: generatingFollowUp, setCompletion } = useCompletion({
+    api: '/api/followup',
+    onFinish: async (prompt, result) => {
+      setFollowUpQuestion(result);
+      await saveTurns(sessionId, turnsRef.current, false, result);
+    },
+    onError: async (err) => {
+      console.error(err);
+      const fallback = "Произошла ошибка сети. Не могли бы вы рассказать об этом подробнее?";
+      setFollowUpQuestion(fallback);
+      await saveTurns(sessionId, turnsRef.current, false, fallback);
+    }
+  });
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -44,7 +60,7 @@ export default function QuizInterface({ sessionId, question, correctAnswer, expl
 
   useEffect(() => {
     scrollToBottom();
-  }, [turns, followUpQuestion, finished, generatingFollowUp, scrollToBottom]);
+  }, [turns, followUpQuestion, finished, generatingFollowUp, completion, scrollToBottom]);
 
   const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCurrentAnswer(e.target.value);
@@ -95,18 +111,16 @@ export default function QuizInterface({ sessionId, question, correctAnswer, expl
       setFollowUpQuestion(null);
       await saveTurns(sessionId, newTurns, true, null);
     } else if (result.weakSpots.length > 0) {
+      setFollowUpQuestion(null); // Clear the previous question while streaming new one
+      setCompletion(''); // Reset stream
       await saveTurns(sessionId, newTurns, false, null);
-      setGeneratingFollowUp(true);
-      const followUp = await generateFollowUp(
-        activeQuestion,
+      complete(JSON.stringify({
+        originalQuestion: activeQuestion,
         correctAnswer,
-        text,
+        userAnswer: text,
         codeSnippet,
-        result.weakSpots
-      );
-      setFollowUpQuestion(followUp.question);
-      setGeneratingFollowUp(false);
-      await saveTurns(sessionId, newTurns, false, followUp.question);
+        weakSpots: result.weakSpots
+      }));
     } else {
       setFinished(true);
       await saveTurns(sessionId, newTurns, true, null);
@@ -134,13 +148,22 @@ export default function QuizInterface({ sessionId, question, correctAnswer, expl
         <ConversationTurn key={i} turn={turn} finished={finished} animate={i >= initialCount} />
       ))}
 
-      {/* generating follow-up indicator */}
+      {/* generating follow-up indicator or streaming text */}
       {generatingFollowUp && (
         <div className="flex gap-3">
           <LoadingLogo size={48} animated />
-          <div className="bg-neutral-800 rounded-lg p-4 flex-1 flex items-center gap-3">
-            <LoadingLogo size={24} animated />
-            <span className="text-neutral-400 text-sm">Thinking...</span>
+          <div className="bg-neutral-800 rounded-lg p-4 flex-1">
+            {completion ? (
+              <>
+                <p className="text-white">{completion}</p>
+                <span className="text-xs text-yellow-500 mt-1 inline-block">Follow-up question</span>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <LoadingLogo size={24} animated />
+                <span className="text-neutral-400 text-sm">Thinking...</span>
+              </div>
+            )}
           </div>
         </div>
       )}
