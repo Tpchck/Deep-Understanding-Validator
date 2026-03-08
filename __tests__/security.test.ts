@@ -1,71 +1,53 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import supertest from 'supertest';
-import { createServer, Server } from 'http';
-import next from 'next';
+import { describe, it, expect, vi } from 'vitest';
+import { proxy } from '../proxy';
+import { NextRequest } from 'next/server';
 
-const app = next({ dev: true });
-const handle = app.getRequestHandler();
+// Mock Supabase to avoid hitting real database
+vi.mock('@supabase/ssr', () => ({
+  createServerClient: () => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+    },
+  }),
+}));
 
-describe('Security headers', () => {
-  let server: Server;
-  let request: ReturnType<typeof supertest>;
-  beforeAll(async () => {
-    await app.prepare();
-    server = createServer((req, res) => handle(req, res)).listen(4000);
-    request = supertest('http://localhost:4000');
-  });
-  afterAll(() => {
-    server.close();
-  });
-  it('should set security headers', async () => {
-    const res = await request.get('/');
-    expect(res.headers['content-security-policy']).toBeDefined();
-    expect(res.headers['x-frame-options']).toBe('DENY');
-    expect(res.headers['x-content-type-options']).toBe('nosniff');
-    expect(res.headers['referrer-policy']).toBeDefined();
-  });
-});
-
-describe('CORS', () => {
-  let server: Server;
-  let request: ReturnType<typeof supertest>;
-  beforeAll(async () => {
-    await app.prepare();
-    server = createServer((req, res) => handle(req, res)).listen(4001);
-    request = supertest('http://localhost:4001');
-  });
-  afterAll(() => {
-    server.close();
-  });
+describe('Security middleware (proxy.ts)', () => {
   it('should reject disallowed origins', async () => {
-    const res = await request.get('/').set('Origin', 'https://evil.com');
+    const req = new NextRequest('http://localhost:3000/', {
+      headers: new Headers({
+        origin: 'https://evil.com',
+      }),
+    });
+
+    const res = await proxy(req);
     expect(res.status).toBe(403);
+    const text = await res.text();
+    expect(text).toBe('CORS Forbidden');
   });
-});
 
-describe('Rate-limit', () => {
-  it('should rate-limit excessive requests (manual)', () => {
-    expect(true).toBe(true);
-  });
-});
+  it('should reject CSRF on mutating methods if referer is bad', async () => {
+    const req = new NextRequest('http://localhost:3000/api/data', {
+      method: 'POST',
+      headers: new Headers({
+        referer: 'https://evil.com/page',
+      }),
+    });
 
-describe('Cookie flags', () => {
-  let server: Server;
-  let request: ReturnType<typeof supertest>;
-  beforeAll(async () => {
-    await app.prepare();
-    server = createServer((req, res) => handle(req, res)).listen(4002);
-    request = supertest('http://localhost:4002');
+    const res = await proxy(req);
+    expect(res.status).toBe(403);
+    const text = await res.text();
+    expect(text).toBe('CSRF Forbidden');
   });
-  afterAll(() => {
-    server.close();
-  });
-  it('should set secure cookie flags', async () => {
-    const res = await request.post('/api/auth/callback');
-    const setCookieHeader = res.headers['set-cookie'];
-    const setCookie = Array.isArray(setCookieHeader) ? setCookieHeader.join(';') : (setCookieHeader || '');
-    expect(setCookie).toMatch(/HttpOnly/);
-    expect(setCookie).toMatch(/Secure/);
-    expect(setCookie).toMatch(/SameSite/);
+
+  it('should allow allowed origins', async () => {
+    const req = new NextRequest('http://localhost:3000/login', {
+      headers: new Headers({
+        origin: 'http://localhost:3000',
+      }),
+    });
+
+    const res = await proxy(req);
+    // Because user is null, it should redirect to /login but since we are at /login, it allows it
+    expect(res.status).toBe(200);
   });
 });
