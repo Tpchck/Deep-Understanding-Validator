@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactCompiler: true,
+  // reactCompiler: true, // Disabled to prevent potential infinite HMR loops
   images: {
     formats: ['image/avif', 'image/webp'],
   },

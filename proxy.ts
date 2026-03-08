@@ -6,7 +6,7 @@ const TRUSTED_ORIGINS = [
   'http://localhost:3000',
 ];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // 1. CORS check
   const origin = request.headers.get('origin');
   if (origin && !TRUSTED_ORIGINS.includes(origin)) {

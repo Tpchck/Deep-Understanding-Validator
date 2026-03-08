@@ -22,7 +22,6 @@ describe("validateEnv", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
     delete process.env.GROQ_API_KEY;
-    delete process.env.GEMINI_API_KEY;
     process.env.USE_MOCK_AI = "false";
     const { validateEnv } = await import("@/lib/env");
     expect(() => validateEnv()).toThrow(/No AI provider/);
@@ -40,18 +39,7 @@ describe("validateEnv", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
     delete process.env.GROQ_API_KEY;
-    delete process.env.GEMINI_API_KEY;
     process.env.USE_MOCK_AI = "true";
-    const { validateEnv } = await import("@/lib/env");
-    expect(() => validateEnv()).not.toThrow();
-  });
-
-  it("passes with Supabase + Gemini configured", async () => {
-    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
-    delete process.env.GROQ_API_KEY;
-    process.env.GEMINI_API_KEY = "test-gemini-key";
-    process.env.USE_MOCK_AI = "false";
     const { validateEnv } = await import("@/lib/env");
     expect(() => validateEnv()).not.toThrow();
   });

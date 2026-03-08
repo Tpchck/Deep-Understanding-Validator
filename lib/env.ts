@@ -7,7 +7,6 @@ export function validateEnv() {
 
   // At least one AI provider must be configured
   const hasGroq = !!process.env.GROQ_API_KEY;
-  const hasGemini = !!process.env.GEMINI_API_KEY;
   const isMock = process.env.USE_MOCK_AI === "true";
 
   const missing = required.filter((key) => !process.env[key]);
@@ -18,9 +17,9 @@ export function validateEnv() {
     );
   }
 
-  if (!hasGroq && !hasGemini && !isMock) {
+  if (!hasGroq && !isMock) {
     throw new Error(
-      "No AI provider configured. Set GROQ_API_KEY, GEMINI_API_KEY, or USE_MOCK_AI=true"
+      "No AI provider configured. Set GROQ_API_KEY, or USE_MOCK_AI=true"
     );
   }
 }

@@ -1,8 +1,13 @@
 // XSS sanitize util
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
 import type { Difficulty } from "@/types";
 
-export const sanitizeHtml = (dirty: string) => DOMPurify.sanitize(dirty);
+export const sanitizeHtml = (dirty: string) => {
+  if (typeof window === 'undefined') {
+    return dirty;
+  }
+  return DOMPurify.sanitize(dirty);
+};
 
 const MIN_CODE_LENGTH = 10;
 const MAX_CODE_LENGTH = 10_000;

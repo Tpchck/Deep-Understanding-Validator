@@ -7,8 +7,6 @@ import { listTempSessions } from "@/lib/temp-store";
 import { validateEnv } from "@/lib/env";
 import ClientParticleBackground from "@/components/ui/ClientParticleBackground";
 
-validateEnv();
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,6 +33,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  validateEnv();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
