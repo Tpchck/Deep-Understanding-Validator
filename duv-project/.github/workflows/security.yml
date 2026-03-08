@@ -1,0 +1,21 @@
+name: Security & Audit
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run lint:secrets
+      - run: node scripts/check-secrets.js
+      - run: npm run audit
+      - run: npm run test:security
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
