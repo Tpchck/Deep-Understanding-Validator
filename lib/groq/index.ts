@@ -52,13 +52,13 @@ ${code}`;
     const err = error as { statusCode?: number; message?: string };
     
     if (err.statusCode === 429) {
-      throw new Error("GROQ_RATE_LIMIT: Мы превысили лимит запросов к нейросети (Rate Limit). Подождите около минуты, пока лимиты (RPM/TPM) восстановятся.");
+      throw new Error("GROQ_RATE_LIMIT: Rate limit exceeded. Please wait a minute before trying again.");
     } else if (err.statusCode === 401) {
-      throw new Error("GROQ_AUTH: Неверный API-ключ Groq. Проверьте настройки переменных окружения.");
+      throw new Error("GROQ_AUTH: Invalid API key. Please check your environment variables.");
     } else if (err.statusCode && err.statusCode >= 500) {
-      throw new Error("GROQ_SERVER_ERROR: Внутренняя ошибка на серверах Groq. Попробуйте позже.");
+      throw new Error("GROQ_SERVER_ERROR: Groq servers are temporarily unavailable. Please try again later.");
     }
 
-    throw new Error(`GROQ_UNKNOWN: Неизвестная ошибка при генерации вопросов (${err.message || "Без деталей"}).`);
+    throw new Error(`GROQ_UNKNOWN: Unknown error during generation (${err.message || "No details"}).`);
   }
 }

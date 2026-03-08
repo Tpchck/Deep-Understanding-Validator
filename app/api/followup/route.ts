@@ -2,7 +2,7 @@ import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 const groq = createOpenAI({
   baseURL: 'https://api.groq.com/openai/v1',
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   
   const limit = checkRateLimit(userId);
   if (!limit.allowed) {
-    return new Response("Превышен лимит запросов. Подождите минуту.", { status: 429 });
+    return new Response("Rate limit exceeded. Please wait a minute.", { status: 429 });
   }
 
   const { prompt: reqBody } = await req.json();

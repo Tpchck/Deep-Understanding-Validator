@@ -46,7 +46,7 @@ export default function QuizInterface({ sessionId, question, correctAnswer, expl
     },
     onError: async (err) => {
       console.error(err);
-      const fallback = "Произошла ошибка сети. Не могли бы вы рассказать об этом подробнее?";
+      const fallback = "A network error occurred. Could you explain that in more detail?";
       setFollowUpQuestion(fallback);
       await saveTurns(sessionId, turnsRef.current, false, fallback);
     }

@@ -61,10 +61,10 @@ For weakSpots: identify SPECIFIC things the student got wrong, described incorre
     console.error("[evaluate-answer] Error:", error);
     const err = error as { statusCode?: number; message?: string };
     
-    let feedback = "Произошла неизвестная ошибка при проверке ответа.";
-    if (err.statusCode === 429) feedback = "Превышен лимит запросов к ИИ (Rate Limit). Подождите минуту.";
-    else if (err.statusCode === 401) feedback = "Ошибка авторизации API-ключа.";
-    else if (err.statusCode && err.statusCode >= 500) feedback = "Серверы ИИ временно недоступны.";
+    let feedback = "An unknown error occurred while evaluating your answer.";
+    if (err.statusCode === 429) feedback = "AI rate limit exceeded. Please wait a minute.";
+    else if (err.statusCode === 401) feedback = "API key authorization error.";
+    else if (err.statusCode && err.statusCode >= 500) feedback = "AI servers are temporarily unavailable.";
 
     return {
       score: 0,
