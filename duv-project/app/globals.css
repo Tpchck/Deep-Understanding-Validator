@@ -1,0 +1,61 @@
+/* Hide scrollbar for textarea with .scrollbar-hide */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --background: 10,10,10;
+  --foreground: 255,255,255;
+}
+
+body{
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+@keyframes word-reveal {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-word-reveal {
+  animation: word-reveal 0.3s ease-out forwards;
+}
+
+@keyframes blur-focus-slow {
+  0%, 100% { filter: blur(1.5px); opacity: 0.6; }
+  50%      { filter: blur(0);    opacity: 1; }
+}
+.animate-blur-focus-slow {
+  animation: blur-focus-slow 5s ease-in-out infinite;
+}

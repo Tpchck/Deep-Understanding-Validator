@@ -1,0 +1,63 @@
+{
+  // === COPILOT — максимальная эффективность ===
+  
+  // Включить файлы инструкций (instructions, prompts, agents)
+  "chat.instructionFilesEnabled": true,
+  
+  // Показывать рекомендации промптов при старте нового чата
+  "chat.promptFilesRecommendations": true,
+  
+  // Агент автоматически запускает команды в терминале
+  "chat.agent.autoApprove": "allowWithTerminal",
+  
+  // Copilot предлагает импорты при автодополнении
+  "editor.suggest.showSnippets": true,
+  
+  // === EDITOR — продуктивность ===
+  
+  // Auto-save для горячей перезагрузки
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  
+  // Форматирование при сохранении
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  
+  // Быстрые подсказки
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  
+  // Bracket pair colorization
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  
+  // Sticky scroll — видеть контекст функции/класса
+  "editor.stickyScroll.enabled": true,
+  
+  // === TYPESCRIPT ===
+  
+  // Автоматические импорты
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  
+  // Inline hints для типов
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  
+  // === SEARCH ===
+  
+  // Исключить шум из поиска
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/.git": true
+  },
+  
+  // === TERMINAL ===
+  
+  "terminal.integrated.defaultProfile.windows": "PowerShell"
+}
