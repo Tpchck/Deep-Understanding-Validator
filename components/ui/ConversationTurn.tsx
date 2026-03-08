@@ -25,7 +25,7 @@ export default function ConversationTurn({ turn, finished, animate = false }: Co
         <div className="bg-neutral-800 rounded-lg p-4 flex-1">
           {animate
             ? <WordReveal text={turn.question} className="text-white" />
-            : <p className="text-white" dangerouslySetInnerHTML={{ __html: sanitizeHtml(turn.question) }} />
+            : <p className="text-white" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: sanitizeHtml(turn.question) }} />
           }
           {turn.isFollowUp && (
             <span className="text-xs text-yellow-500 mt-1 inline-block">Follow-up question</span>
@@ -35,7 +35,7 @@ export default function ConversationTurn({ turn, finished, animate = false }: Co
 
       <div className="flex gap-3 justify-end">
         <div className="bg-purple-900/30 border border-purple-800 rounded-lg p-4 max-w-[85%]">
-          <span className="text-purple-100" dangerouslySetInnerHTML={{ __html: sanitizeHtml(turn.userAnswer) }} />
+          <span className="text-purple-100" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: sanitizeHtml(turn.userAnswer) }} />
         </div>
         <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-xs font-bold shrink-0">
           You

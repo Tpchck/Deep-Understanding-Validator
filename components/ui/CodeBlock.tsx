@@ -1,4 +1,4 @@
-import { sanitizeHtml } from '../../lib/utils';
+import React from 'react';
 
 interface CodeBlockProps {
   code: string;
@@ -12,7 +12,7 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
         {language.toLowerCase()}
       </div>
       <pre className="p-4 overflow-x-auto text-sm font-mono text-green-400">
-        <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(code) }} />
+        <span>{code}</span>
       </pre>
     </div>
   );
