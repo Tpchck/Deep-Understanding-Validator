@@ -61,11 +61,18 @@ Return ONLY valid JSON, no markdown:
       weakSpots: Array.isArray(parsed.weakSpots) ? parsed.weakSpots : [],
       understood: score >= 80,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[evaluate-answer] Error:", error);
+    const err = error as { status?: number; message?: string };
+    
+    let feedback = "Произошла неизвестная ошибка при проверке ответа.";
+    if (err.status === 429) feedback = "Превышен лимит запросов к ИИ (Rate Limit). Подождите минуту.";
+    else if (err.status === 401) feedback = "Ошибка авторизации API-ключа.";
+    else if (err.status && err.status >= 500) feedback = "Серверы Groq временно недоступны.";
+
     return {
       score: 0,
-      feedback: "Could not evaluate your answer. Please try again.",
+      feedback,
       weakSpots: [],
       understood: false,
     };

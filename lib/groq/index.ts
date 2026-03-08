@@ -78,8 +78,22 @@ ${code}`;
 
     const content = chatCompletion.choices[0]?.message?.content || "{}";
     return JSON.parse(content) as AIResponse;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Groq Generation Error:", error);
-    throw new Error("Failed to generate questions via Groq");
+    
+    // Detailed Error Handling for Groq API
+    const err = error as { status?: number; message?: string };
+    
+    if (err.status === 429) {
+      throw new Error("GROQ_RATE_LIMIT: Мы превысили лимит запросов к нейросети (Rate Limit). Подождите около минуты, пока лимиты (RPM/TPM) восстановятся.");
+    } else if (err.status === 401) {
+      throw new Error("GROQ_AUTH: Неверный API-ключ Groq. Проверьте настройки переменных окружения.");
+    } else if (err.status && err.status >= 500) {
+      throw new Error("GROQ_SERVER_ERROR: Внутренняя ошибка на серверах Groq. Попробуйте позже.");
+    } else if (error instanceof SyntaxError) {
+      throw new Error("GROQ_HALLUCINATION: Нейросеть выдала поврежденные данные вместо чистого JSON. Попробуйте отправить код еще раз.");
+    }
+
+    throw new Error(`GROQ_UNKNOWN: Неизвестная ошибка при генерации вопросов (${err.message || "Без деталей"}).`);
   }
 }
