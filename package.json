@@ -20,10 +20,10 @@
     "@supabase/supabase-js": "^2.90.1",
     "ai": "^6.0.116",
     "dompurify": "^3.3.2",
-    "groq-sdk": "^0.37.0",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.41.2",

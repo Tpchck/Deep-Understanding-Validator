@@ -1,6 +1,8 @@
 'use server';
 
-import Groq from "groq-sdk";
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { groq, MODEL_NAME } from '@/lib/ai';
 import type { EvaluationResult } from "@/types";
 
 export async function evaluateAnswer(
@@ -13,9 +15,7 @@ export async function evaluateAnswer(
     return { score: 0, feedback: "You didn't provide an answer.", weakSpots: ["No answer provided"], understood: false };
   }
 
-  try {
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const prompt = `You are a CS professor evaluating whether a student TRULY UNDERSTANDS their code. You're not trying to extract the perfect answer — you're checking if they grasp what they wrote.
+  const prompt = `You are a CS professor evaluating whether a student TRULY UNDERSTANDS their code. You're not trying to extract the perfect answer — you're checking if they grasp what they wrote.
 
 QUESTION: ${questionText}
 
@@ -36,39 +36,35 @@ Evaluation rules:
 - Be STRICT with concepts — don't accept hand-waving or buzzword-dropping without substance
 - Be SKEPTICAL of half-truths: if the student says something partially correct but avoids the hard part, score 40-65 and flag weakSpots
 
-For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete — name the exact concept or code element they missed. ALWAYS generate weakSpots for scores below 80 — even if the answer is decent, find what's missing or imprecise. If the student clearly understands (score >= 80), return an empty array.
+For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete — name the exact concept or code element they missed. ALWAYS generate weakSpots for scores below 80 — even if the answer is decent, find what's missing or imprecise. If the student clearly understands (score >= 80), return an empty array.`;
 
-Return ONLY valid JSON, no markdown:
-{
-  "score": 0-100,
-  "feedback": "What they got right and wrong",
-  "weakSpots": ["specific thing 1 they got wrong or skipped", "specific thing 2"]
-}`;
-
-    const completion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
+  try {
+    const { object } = await generateObject({
+      model: groq(MODEL_NAME),
+      schema: z.object({
+        score: z.number().min(0).max(100),
+        feedback: z.string(),
+        weakSpots: z.array(z.string()),
+      }),
+      prompt: prompt,
       temperature: 0.3,
     });
 
-    const content = completion.choices[0]?.message?.content || "{}";
-    const parsed = JSON.parse(content);
-    const score = Math.max(0, Math.min(100, Number(parsed.score) || 0));
+    const score = object.score;
     return {
       score,
-      feedback: parsed.feedback || "No feedback available.",
-      weakSpots: Array.isArray(parsed.weakSpots) ? parsed.weakSpots : [],
+      feedback: object.feedback,
+      weakSpots: object.weakSpots,
       understood: score >= 80,
     };
   } catch (error: unknown) {
     console.error("[evaluate-answer] Error:", error);
-    const err = error as { status?: number; message?: string };
+    const err = error as { statusCode?: number; message?: string };
     
     let feedback = "Произошла неизвестная ошибка при проверке ответа.";
-    if (err.status === 429) feedback = "Превышен лимит запросов к ИИ (Rate Limit). Подождите минуту.";
-    else if (err.status === 401) feedback = "Ошибка авторизации API-ключа.";
-    else if (err.status && err.status >= 500) feedback = "Серверы Groq временно недоступны.";
+    if (err.statusCode === 429) feedback = "Превышен лимит запросов к ИИ (Rate Limit). Подождите минуту.";
+    else if (err.statusCode === 401) feedback = "Ошибка авторизации API-ключа.";
+    else if (err.statusCode && err.statusCode >= 500) feedback = "Серверы ИИ временно недоступны.";
 
     return {
       score: 0,
