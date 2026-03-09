@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { proxy } from '../proxy';
+import { middleware as proxy } from '../middleware';
 import { NextRequest } from 'next/server';
 
 // Mock Supabase to avoid hitting real database

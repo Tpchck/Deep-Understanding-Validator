@@ -38,6 +38,7 @@ Rules for the follow-up question:
 - Do NOT repeat the original question in different words
 - Do NOT ask something completely new — stay within what the student already tried to answer
 - Keep it focused and concrete — one specific thing to explain
+- If the student seems to be struggling (multiple weak spots), make the question more approachable — give a small hint about WHAT to think about (e.g., "Think about the mechanism that Java uses to prevent two threads from entering the same method…") without revealing the full answer
 - Write ONLY the text of the question. Do not include any formatting, JSON, preambles, or markdown.`;
 
   // NOTE: streamText is lazy — errors during the stream itself cannot be caught

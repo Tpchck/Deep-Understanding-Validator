@@ -66,6 +66,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
   const { complete, completion, isLoading: generatingFollowUp, setCompletion } = useCompletion({
     api: '/api/followup',
     id: 'followup_question',
+    streamProtocol: 'text',
     onFinish: async (prompt, result) => {
       setFollowUpQuestion(result);
       await saveTurns(sessionId, turnsRef.current, false, result);

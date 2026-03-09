@@ -32,6 +32,11 @@ Evaluation rules:
 - Be STRICT with concepts — don't accept hand-waving or buzzword-dropping without substance
 - Be SKEPTICAL of half-truths: if the student says something partially correct but avoids the hard part, score 40-65 and flag weakSpots
 
+Feedback structure (IMPORTANT):
+- FIRST, briefly acknowledge what the student got RIGHT — even partial correctness deserves recognition
+- THEN explain what is missing, wrong, or needs deeper understanding
+- Keep feedback to 2-3 sentences maximum. Be direct, not verbose.
+
 For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete.
 - If score >= 80: the student clearly understands, return an empty weakSpots array.
 - If score < 80: you MUST return at least one weakSpot. NEVER return an empty weakSpots array if the score is below 80. Even if the answer is mostly right, pinpoint the missing piece.
@@ -48,6 +53,7 @@ Return EXACTLY a raw JSON object (no markdown formatting, no backticks) with thi
       model: groq(MODEL_NAME),
       prompt: prompt,
       temperature: 0.3,
+      maxOutputTokens: 500,
     });
 
     console.log("[evaluate-answer] Raw text from Groq:", text);
@@ -57,18 +63,17 @@ Return EXACTLY a raw JSON object (no markdown formatting, no backticks) with thi
 
     console.log("[evaluate-answer] Parsed JSON:", object);
 
-    const score = object.score;
-    const weakSpots: string[] = object.weakSpots || [];
+    const score = typeof object.score === 'number' ? object.score : 0;
+    const weakSpots: string[] = Array.isArray(object.weakSpots) ? object.weakSpots : [];
 
     // Safety net: if score < 80, ensure at least one weakSpot exists
-    // (the AI sometimes lists gaps in feedback text but forgets to populate weakSpots)
     if (score >= 20 && score < 80 && weakSpots.length === 0) {
       weakSpots.push('Partial understanding — key details missing or incorrectly explained');
     }
 
     return {
       score,
-      feedback: object.feedback,
+      feedback: typeof object.feedback === 'string' ? object.feedback : 'Unable to parse feedback.',
       weakSpots,
       understood: score >= 80,
     };

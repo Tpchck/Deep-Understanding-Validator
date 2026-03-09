@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { checkRateLimit } from "@/lib/rate-limit";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // GET /api/questions — list user's questions
 export async function GET() {
@@ -13,7 +12,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("questions")
-    .select("*")
+    .select("id, question_text, code_snippet, difficulty, language, created_at, finished")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(100);

@@ -49,21 +49,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 relative">
-      {isPending && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm">
-          <LoadingLogo size={80} />
-          <p className="mt-6 text-neutral-300 text-lg font-mono animate-pulse">Analyzing your code...</p>
-          <div className="mt-4 flex gap-1">
-            {[0, 1, 2].map(i => (
-              <span
-                key={i}
-                className="w-2 h-2 rounded-full bg-purple-400"
-                style={{ animation: `pulse-slow 1.4s ease-in-out ${i * 0.2}s infinite` }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
         <h1 className="text-4xl font-bold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">
           DUV: Deep Understanding Validator

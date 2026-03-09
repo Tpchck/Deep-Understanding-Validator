@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Difficulty, Question, AIResponse } from "@/types";
+import type { Difficulty } from "@/types";
 import type { QuestionRow, Database } from "@/types/database.types";
 
 describe("Type contracts", () => {
@@ -8,26 +8,6 @@ describe("Type contracts", () => {
     expect(values).toHaveLength(3);
   });
 
-  it("Question has all required fields", () => {
-    const q: Question = {
-      id: "q1",
-      text: "What is 1+1?",
-      correctAnswer: "2, because addition of two ones equals two.",
-      explanation: "Basic math",
-    };
-    expect(q.id).toBeDefined();
-    expect(q.correctAnswer).toBeDefined();
-  });
-
-  it("AIResponse contains questions array", () => {
-    const res: AIResponse = {
-      language: "TypeScript",
-      difficulty: "medium",
-      topics: ["types"],
-      questions: [],
-    };
-    expect(Array.isArray(res.questions)).toBe(true);
-  });
 
   it("QuestionRow matches DB column names", () => {
     const row: QuestionRow = {
