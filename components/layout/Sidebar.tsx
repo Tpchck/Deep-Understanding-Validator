@@ -19,15 +19,21 @@ interface SidebarProps {
 }
 
 function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString();
+  try {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    if (isNaN(diff)) return "unknown";
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString();
+  } catch (err) {
+    console.error("Date parsing error:", err);
+    return "unknown";
+  }
 }
 
 export default function Sidebar({ email, history }: SidebarProps) {
@@ -132,7 +138,9 @@ export default function Sidebar({ email, history }: SidebarProps) {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono text-purple-400">{item.language}</span>
-                  <span className="text-[10px] text-neutral-600">{timeAgo(item.created_at)}</span>
+                  <span className="text-[10px] text-neutral-600" suppressHydrationWarning>
+                    {timeAgo(item.created_at)}
+                  </span>
                 </div>
                 <p className="truncate text-xs mt-1 text-neutral-500">{preview}</p>
               </Link>

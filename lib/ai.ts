@@ -1,8 +1,7 @@
-import { createOpenAI } from '@ai-sdk/openai';
+import { createGroq } from '@ai-sdk/groq';
 
-// Centralized Groq client using Vercel AI SDK (OpenAI compatibility mode)
-export const groq = createOpenAI({
-  baseURL: 'https://api.groq.com/openai/v1',
+// Centralized Groq client using official Groq provider
+export const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,
 });
 

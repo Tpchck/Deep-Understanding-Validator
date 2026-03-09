@@ -1,13 +1,11 @@
 'use server';
 
-import { generateObject } from 'ai';
-import { z } from 'zod';
+import { generateText } from 'ai';
 import { groq, MODEL_NAME } from '@/lib/ai';
 import type { EvaluationResult } from "@/types";
 
 export async function evaluateAnswer(
   questionText: string,
-  correctAnswer: string,
   userAnswer: string,
   codeSnippet: string
 ): Promise<EvaluationResult> {
@@ -22,8 +20,6 @@ QUESTION: ${questionText}
 CODE:
 ${codeSnippet}
 
-CORRECT ANSWER: ${correctAnswer}
-
 STUDENT'S ANSWER: ${userAnswer}
 
 Evaluation rules:
@@ -36,25 +32,44 @@ Evaluation rules:
 - Be STRICT with concepts — don't accept hand-waving or buzzword-dropping without substance
 - Be SKEPTICAL of half-truths: if the student says something partially correct but avoids the hard part, score 40-65 and flag weakSpots
 
-For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete — name the exact concept or code element they missed. ALWAYS generate weakSpots for scores below 80 — even if the answer is decent, find what's missing or imprecise. If the student clearly understands (score >= 80), return an empty array.`;
+For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete.
+- If score >= 80: the student clearly understands, return an empty weakSpots array.
+- If score < 80: you MUST return at least one weakSpot. NEVER return an empty weakSpots array if the score is below 80. Even if the answer is mostly right, pinpoint the missing piece.
+
+Return EXACTLY a raw JSON object (no markdown formatting, no backticks) with this exact schema:
+{
+  "score": number,
+  "feedback": "string",
+  "weakSpots": ["string"]
+}`;
 
   try {
-    const { object } = await generateObject({
+    const { text } = await generateText({
       model: groq(MODEL_NAME),
-      schema: z.object({
-        score: z.number().min(0).max(100),
-        feedback: z.string(),
-        weakSpots: z.array(z.string()),
-      }),
       prompt: prompt,
       temperature: 0.3,
     });
 
+    console.log("[evaluate-answer] Raw text from Groq:", text);
+
+    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const object = JSON.parse(cleanText);
+
+    console.log("[evaluate-answer] Parsed JSON:", object);
+
     const score = object.score;
+    const weakSpots: string[] = object.weakSpots || [];
+
+    // Safety net: if score < 80, ensure at least one weakSpot exists
+    // (the AI sometimes lists gaps in feedback text but forgets to populate weakSpots)
+    if (score >= 20 && score < 80 && weakSpots.length === 0) {
+      weakSpots.push('Partial understanding — key details missing or incorrectly explained');
+    }
+
     return {
       score,
       feedback: object.feedback,
-      weakSpots: object.weakSpots,
+      weakSpots,
       understood: score >= 80,
     };
   } catch (error: unknown) {
