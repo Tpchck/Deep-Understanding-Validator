@@ -2,40 +2,38 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [main, develop]
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [main, develop]
 
 jobs:
-  build-and-test:
+  ci:
+    name: Lint, Test & Build
     runs-on: ubuntu-latest
 
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key"
+      USE_MOCK_AI: "true"
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Linter
+      - name: Lint
         run: npm run lint
 
-      - name: Run Unit Tests
+      - name: Unit tests
         run: npm run test
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder-url.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key"
-          USE_MOCK_AI: "true"
 
-      - name: Build Next.js app (Type check & compilation)
+      - name: Build
         run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder-url.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key"
-          USE_MOCK_AI: "true"
