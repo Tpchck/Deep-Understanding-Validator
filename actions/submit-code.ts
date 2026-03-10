@@ -2,8 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { generateQuestions } from "@/lib/groq";
-import { validateCodeSubmission } from "@/lib/utils";
+import { validateCodeSubmission, detectLanguage } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { saveTempSession } from "@/lib/temp-store";
@@ -37,42 +36,30 @@ export async function processCodeSubmission(formData: FormData) {
         }
     }
 
-    let sessionId: string | null = null;
+    const sessionId = crypto.randomUUID();
+    const detectedLanguage = detectLanguage(code);
 
     try {
-        const aiResponse = await generateQuestions(code);
-
-        if (aiResponse.rejected) {
-            return {
-                error: aiResponse.rejectionMessage ?? "This doesn't look like code. Please paste a valid code snippet.",
-                success: false,
-            };
-        }
-
-        const q = aiResponse.questions[0];
-        sessionId = crypto.randomUUID();
-
         if (isTempStoreMode()) {
             // In-memory store (for debugging / when Supabase is unavailable)
             saveTempSession(sessionId, {
-                language: aiResponse.language,
-                question: q.text,
-                correctAnswer: q.correctAnswer,
-                explanation: q.explanation,
+                language: detectedLanguage,
+                question: '', // Empty initially, we will stream it
+                correctAnswer: '',
+                explanation: '',
                 codeSnippet: code,
             });
-
         } else {
             // Supabase
             const { error: dbError } = await supabase.from("questions").insert({
                 id: sessionId,
-                question_text: q.text,
+                question_text: '', // Empty initially
                 code_snippet: code,
-                options: [q.correctAnswer],
+                options: [],
                 correct_option_index: 0,
-                explanation: q.explanation,
-                difficulty: aiResponse.difficulty.toLowerCase(),
-                language: aiResponse.language,
+                explanation: '',
+                difficulty: 'medium',
+                language: detectedLanguage,
                 user_id: user?.id ?? null,
                 session_id: sessionId,
             });
@@ -81,20 +68,11 @@ export async function processCodeSubmission(formData: FormData) {
                 console.error("[submit-code] DB insert error:", dbError);
                 throw new Error(`Failed to save to DB: ${dbError.message}`);
             }
-
         }
     } catch (e: unknown) {
         console.error("[submit-code] Error:", e);
         const msg = e instanceof Error ? e.message : "Unknown error";
-        
-        // Strip out the prefix for a cleaner UI message if it's our custom error
-        let displayMsg = msg;
-        if (msg.includes("GROQ_RATE_LIMIT")) displayMsg = "API Groq перегружена: Вы превысили лимит запросов или токенов в минуту. Пожалуйста, подождите 1 минуту и попробуйте снова.";
-        else if (msg.includes("GROQ_AUTH")) displayMsg = "Ошибка авторизации: Неверный ключ Groq API.";
-        else if (msg.includes("GROQ_SERVER_ERROR")) displayMsg = "Серверы Groq временно недоступны. Повторите попытку позже.";
-        else if (msg.includes("GROQ_HALLUCINATION")) displayMsg = "Сбой нейросети: Groq вернул поврежденный ответ. Попробуйте еще раз.";
-
-        return { error: displayMsg, success: false };
+        return { error: msg, success: false };
     }
 
     revalidatePath("/", "layout");

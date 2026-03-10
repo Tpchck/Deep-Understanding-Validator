@@ -6,6 +6,9 @@ import type { QuizTurn } from "@/types";
 
 const isTempStoreMode = () => process.env.STORAGE_MODE === "temp";
 
+// Don't cache this page — data changes after AI generates questions
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
     params: Promise<{id:string}>;
 }
@@ -22,7 +25,6 @@ export default async function ResultPage({ params }: PageProps){
                 <QuizInterface
                     sessionId={id}
                     question={tempSession.question}
-                    correctAnswer={tempSession.correctAnswer}
                     explanation={tempSession.explanation}
                     codeSnippet={tempSession.codeSnippet}
                     language={tempSession.language}
@@ -39,7 +41,7 @@ export default async function ResultPage({ params }: PageProps){
 
     const { data: current, error } = await supabase
         .from("questions")
-        .select("*")
+        .select("id, question_text, code_snippet, language, explanation, turns, finished, follow_up_question")
         .eq("id", id)
         .single();
 
@@ -50,7 +52,6 @@ export default async function ResultPage({ params }: PageProps){
             <QuizInterface
                 sessionId={id}
                 question={current.question_text}
-                correctAnswer={current.options?.[0] ?? ""}
                 explanation={current.explanation}
                 codeSnippet={current.code_snippet}
                 language={current.language}

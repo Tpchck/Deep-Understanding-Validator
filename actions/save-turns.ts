@@ -10,7 +10,8 @@ export async function saveTurns(
   sessionId: string,
   turns: QuizTurn[],
   finished: boolean,
-  followUpQuestion: string | null = null
+  followUpQuestion: string | null = null,
+  initialQuestionText: string | null = null
 ) {
   if (isTempStoreMode()) {
     updateTempSessionTurns(sessionId, turns, finished);
@@ -18,13 +19,19 @@ export async function saveTurns(
   }
 
   const supabase = await createClient();
+  const updateData: Record<string, unknown> = {
+    turns: turns as unknown as Record<string, unknown>[],
+    finished,
+    follow_up_question: followUpQuestion,
+  };
+
+  if (initialQuestionText) {
+    updateData.question_text = initialQuestionText;
+  }
+
   const { error, data } = await supabase
     .from('questions')
-    .update({
-      turns: turns as unknown as Record<string, unknown>[],
-      finished,
-      follow_up_question: followUpQuestion,
-    })
+    .update(updateData)
     .eq('id', sessionId)
     .select('id');
 

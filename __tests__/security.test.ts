@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { proxy } from '../proxy';
+import { middleware } from '../middleware';
 import { NextRequest } from 'next/server';
 
 // Mock Supabase to avoid hitting real database
@@ -11,43 +11,62 @@ vi.mock('@supabase/ssr', () => ({
   }),
 }));
 
-describe('Security middleware (proxy.ts)', () => {
-  it('should reject disallowed origins', async () => {
+describe('Security middleware', () => {
+  it('blocks requests from untrusted origins (CORS)', async () => {
     const req = new NextRequest('http://localhost:3000/', {
       headers: new Headers({
         origin: 'https://evil.com',
       }),
     });
 
-    const res = await proxy(req);
+    const res = await middleware(req);
     expect(res.status).toBe(403);
-    const text = await res.text();
-    expect(text).toBe('CORS Forbidden');
+    expect(await res.text()).toBe('CORS Forbidden');
   });
 
-  it('should reject CSRF on mutating methods if referer is bad', async () => {
-    const req = new NextRequest('http://localhost:3000/api/data', {
+  it('blocks POST with untrusted referer (CSRF)', async () => {
+    const req = new NextRequest('http://localhost:3000/api/submit', {
       method: 'POST',
       headers: new Headers({
-        referer: 'https://evil.com/page',
+        referer: 'https://evil.com/phishing',
       }),
     });
 
-    const res = await proxy(req);
+    const res = await middleware(req);
     expect(res.status).toBe(403);
-    const text = await res.text();
-    expect(text).toBe('CSRF Forbidden');
+    expect(await res.text()).toBe('CSRF Forbidden');
   });
 
-  it('should allow allowed origins', async () => {
+  it('allows requests from trusted origin (localhost)', async () => {
     const req = new NextRequest('http://localhost:3000/login', {
       headers: new Headers({
         origin: 'http://localhost:3000',
       }),
     });
 
-    const res = await proxy(req);
-    // Because user is null, it should redirect to /login but since we are at /login, it allows it
+    const res = await middleware(req);
+    // User is null → middleware allows /login page without redirect
     expect(res.status).toBe(200);
+  });
+
+  it('redirects unauthenticated users to /login', async () => {
+    const req = new NextRequest('http://localhost:3000/dashboard');
+    const res = await middleware(req);
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get('location')!).pathname).toBe('/login');
+  });
+
+  it('allows GET requests without referer check', async () => {
+    // GET requests should not be subject to CSRF referer checks
+    const req = new NextRequest('http://localhost:3000/login', {
+      method: 'GET',
+      headers: new Headers({
+        referer: 'https://evil.com/',
+      }),
+    });
+
+    const res = await middleware(req);
+    // Should still pass (CSRF only applies to mutating methods)
+    expect(res.status).not.toBe(403);
   });
 });

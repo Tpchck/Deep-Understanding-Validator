@@ -1,25 +1,26 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const TRUSTED_ORIGINS = [
-  'https://yourdomain.com',
-  'http://localhost:3000',
-];
+function getTrustedOrigins(): string[] {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const origins = ['http://localhost:3000'];
+  if (siteUrl) origins.push(siteUrl.replace(/\/$/, ''));
+  return origins;
+}
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const trustedOrigins = getTrustedOrigins();
+
   // 1. CORS check
   const origin = request.headers.get('origin');
-  if (origin && !TRUSTED_ORIGINS.includes(origin)) {
+  if (origin && !trustedOrigins.includes(origin)) {
     return new NextResponse('CORS Forbidden', { status: 403 });
   }
 
-  // 2. CSRF (Origin/Referer check for mutating methods)
+  // 2. CSRF (Referer check for mutating methods)
   if (["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
     const referer = request.headers.get('referer');
-    if (origin && !TRUSTED_ORIGINS.includes(origin)) {
-      return new NextResponse('CSRF Forbidden', { status: 403 });
-    }
-    if (referer && !TRUSTED_ORIGINS.some(o => referer.startsWith(o))) {
+    if (referer && !trustedOrigins.some(o => referer.startsWith(o))) {
       return new NextResponse('CSRF Forbidden', { status: 403 });
     }
   }
@@ -51,7 +52,7 @@ export async function proxy(request: NextRequest) {
   // refresh session — important for SSR
   const { data: { user } } = await supabase.auth.getUser();
 
-  // not logged in -> send to login (except auth pages themselves)
+  // not logged in -> send to login (except public pages)
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
@@ -63,7 +64,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // already logged in but trying to access auth pages -> go home
+  // already logged in but trying access auth pages -> go home
   if (
     user &&
     (request.nextUrl.pathname.startsWith("/login") ||

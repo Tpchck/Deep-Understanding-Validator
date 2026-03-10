@@ -6,9 +6,13 @@ const SECRET_PATTERNS = [/api[_-]?key/i, /secret/i, /token/i];
 
 function scanFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  for (const pattern of SECRET_PATTERNS) {
-    if (pattern.test(content)) {
-      return true;
+  const lines = content.split('\n');
+  for (const line of lines) {
+    if (line.includes('process.env')) continue; // Ignore env variable references
+    for (const pattern of SECRET_PATTERNS) {
+      if (pattern.test(line)) {
+        return true;
+      }
     }
   }
   return false;

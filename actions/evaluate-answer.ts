@@ -1,11 +1,11 @@
 'use server';
 
-import Groq from "groq-sdk";
+import { generateText } from 'ai';
+import { groq, MODEL_NAME } from '@/lib/ai';
 import type { EvaluationResult } from "@/types";
 
 export async function evaluateAnswer(
   questionText: string,
-  correctAnswer: string,
   userAnswer: string,
   codeSnippet: string
 ): Promise<EvaluationResult> {
@@ -13,16 +13,12 @@ export async function evaluateAnswer(
     return { score: 0, feedback: "You didn't provide an answer.", weakSpots: ["No answer provided"], understood: false };
   }
 
-  try {
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const prompt = `You are a CS professor evaluating whether a student TRULY UNDERSTANDS their code. You're not trying to extract the perfect answer — you're checking if they grasp what they wrote.
+  const prompt = `You are a CS professor evaluating whether a student TRULY UNDERSTANDS their code. You're not trying to extract the perfect answer — you're checking if they grasp what they wrote.
 
 QUESTION: ${questionText}
 
 CODE:
 ${codeSnippet}
-
-CORRECT ANSWER: ${correctAnswer}
 
 STUDENT'S ANSWER: ${userAnswer}
 
@@ -36,39 +32,59 @@ Evaluation rules:
 - Be STRICT with concepts — don't accept hand-waving or buzzword-dropping without substance
 - Be SKEPTICAL of half-truths: if the student says something partially correct but avoids the hard part, score 40-65 and flag weakSpots
 
-For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete — name the exact concept or code element they missed. ALWAYS generate weakSpots for scores below 80 — even if the answer is decent, find what's missing or imprecise. If the student clearly understands (score >= 80), return an empty array.
+Feedback structure (IMPORTANT):
+- FIRST, briefly acknowledge what the student got RIGHT — even partial correctness deserves recognition
+- THEN explain what is missing, wrong, or needs deeper understanding
+- Keep feedback to 2-3 sentences maximum. Be direct, not verbose.
 
-Return ONLY valid JSON, no markdown:
+For weakSpots: identify SPECIFIC things the student got wrong, described incorrectly, or deliberately avoided explaining. Be concrete.
+- If score >= 80: the student clearly understands, return an empty weakSpots array.
+- If score < 80: you MUST return at least one weakSpot. NEVER return an empty weakSpots array if the score is below 80. Even if the answer is mostly right, pinpoint the missing piece.
+
+Return EXACTLY a raw JSON object (no markdown formatting, no backticks) with this exact schema:
 {
-  "score": 0-100,
-  "feedback": "What they got right and wrong",
-  "weakSpots": ["specific thing 1 they got wrong or skipped", "specific thing 2"]
+  "score": number,
+  "feedback": "string",
+  "weakSpots": ["string"]
 }`;
 
-    const completion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
+  try {
+    const { text } = await generateText({
+      model: groq(MODEL_NAME),
+      prompt: prompt,
       temperature: 0.3,
+      maxOutputTokens: 500,
     });
 
-    const content = completion.choices[0]?.message?.content || "{}";
-    const parsed = JSON.parse(content);
-    const score = Math.max(0, Math.min(100, Number(parsed.score) || 0));
+    console.log("[evaluate-answer] Raw text from Groq:", text);
+
+    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const object = JSON.parse(cleanText);
+
+    console.log("[evaluate-answer] Parsed JSON:", object);
+
+    const score = typeof object.score === 'number' ? object.score : 0;
+    const weakSpots: string[] = Array.isArray(object.weakSpots) ? object.weakSpots : [];
+
+    // Safety net: if score < 80, ensure at least one weakSpot exists
+    if (score >= 20 && score < 80 && weakSpots.length === 0) {
+      weakSpots.push('Partial understanding — key details missing or incorrectly explained');
+    }
+
     return {
       score,
-      feedback: parsed.feedback || "No feedback available.",
-      weakSpots: Array.isArray(parsed.weakSpots) ? parsed.weakSpots : [],
+      feedback: typeof object.feedback === 'string' ? object.feedback : 'Unable to parse feedback.',
+      weakSpots,
       understood: score >= 80,
     };
   } catch (error: unknown) {
     console.error("[evaluate-answer] Error:", error);
-    const err = error as { status?: number; message?: string };
+    const err = error as { statusCode?: number; message?: string };
     
-    let feedback = "Произошла неизвестная ошибка при проверке ответа.";
-    if (err.status === 429) feedback = "Превышен лимит запросов к ИИ (Rate Limit). Подождите минуту.";
-    else if (err.status === 401) feedback = "Ошибка авторизации API-ключа.";
-    else if (err.status && err.status >= 500) feedback = "Серверы Groq временно недоступны.";
+    let feedback = "An unknown error occurred while evaluating your answer.";
+    if (err.statusCode === 429) feedback = "AI rate limit exceeded. Please wait a minute.";
+    else if (err.statusCode === 401) feedback = "API key authorization error.";
+    else if (err.statusCode && err.statusCode >= 500) feedback = "AI servers are temporarily unavailable.";
 
     return {
       score: 0,

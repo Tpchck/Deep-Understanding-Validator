@@ -83,3 +83,63 @@ export function looksLikeCode(text: string): boolean {
 export function formatDifficulty(d: Difficulty): string {
   return d.charAt(0).toUpperCase() + d.slice(1);
 }
+
+// ── Language detection ─────────────────────────────────
+
+interface LangRule {
+  lang: string;
+  patterns: RegExp[];
+  weight?: number;
+}
+
+const LANG_RULES: LangRule[] = [
+  { lang: 'Python',     patterns: [/\bdef\s+\w+\s*\(/, /\bimport\s+\w+/, /\bprint\s*\(/, /\belif\b/, /:\s*\n\s+/] },
+  { lang: 'Java',       patterns: [/\bpublic\s+(class|static|void)\b/, /System\.(out|err)/, /\bString\s*\[/, /\bStringB(uffer|uilder)\b/, /\bimport\s+java\./] },
+  { lang: 'JavaScript', patterns: [/\bconst\s+\w+\s*=/, /\bfunction\s+\w+\s*\(/, /=>\s*[{(]/, /console\.(log|error|warn)/, /\brequire\s*\(/, /\.addEventListener/] },
+  { lang: 'TypeScript', patterns: [/:\s*(string|number|boolean|void)\b/, /\binterface\s+\w+/, /\btype\s+\w+\s*=/, /<\w+>/, /\bas\s+\w+/] },
+  { lang: 'C++',        patterns: [/#include\s*</, /\bstd::/, /\bcout\b/, /\bcin\b/, /\bvector\s*</, /\busing\s+namespace\b/] },
+  { lang: 'C',          patterns: [/#include\s*<stdio/, /\bprintf\s*\(/, /\bscanf\s*\(/, /\bmalloc\s*\(/, /\bvoid\s*\*/], weight: 0.8 },
+  { lang: 'C#',         patterns: [/\busing\s+System/, /\bnamespace\s+\w+/, /\bConsole\.(Write|Read)/, /\bvar\s+\w+\s*=/] },
+  { lang: 'Go',         patterns: [/\bfunc\s+\w+\s*\(/, /\bpackage\s+main\b/, /\bfmt\./, /\bgo\s+func\b/, /:=\s*/] },
+  { lang: 'Rust',       patterns: [/\bfn\s+\w+\s*\(/, /\blet\s+mut\b/, /\bimpl\s+\w+/, /\bpub\s+fn\b/, /\b->/, /println!\s*\(/] },
+  { lang: 'PHP',        patterns: [/<\?php/, /\$\w+\s*=/, /\$this->/, /\becho\s+/, /\bfunction\s+\w+\s*\(/], weight: 1 },
+  { lang: 'Ruby',       patterns: [/\bdef\s+\w+/, /\bend\b/, /\bputs\s+/, /\battr_(reader|writer|accessor)\b/, /\bdo\s*\|/], weight: 0.9 },
+  { lang: 'SQL',        patterns: [/\bSELECT\b.*\bFROM\b/i, /\bCREATE\s+TABLE\b/i, /\bINSERT\s+INTO\b/i, /\bALTER\s+TABLE\b/i] },
+  { lang: 'Kotlin',     patterns: [/\bfun\s+\w+\s*\(/, /\bval\s+\w+/, /\bvar\s+\w+/, /\bprintln\s*\(/, /\bdata\s+class\b/] },
+  { lang: 'Swift',      patterns: [/\bfunc\s+\w+\s*\(/, /\bvar\s+\w+\s*:/, /\blet\s+\w+\s*:/, /\bprint\s*\(/, /\bguard\s+let\b/] },
+];
+
+/**
+ * Detect the programming language from code using keyword heuristics.
+ * Returns a human-readable language name (e.g. "Java", "Python").
+ */
+export function detectLanguage(code: string): string {
+  const scores: Record<string, number> = {};
+
+  for (const rule of LANG_RULES) {
+    let hits = 0;
+    for (const pattern of rule.patterns) {
+      if (pattern.test(code)) hits++;
+    }
+    if (hits > 0) {
+      scores[rule.lang] = hits * (rule.weight ?? 1);
+    }
+  }
+
+  const entries = Object.entries(scores);
+  if (entries.length === 0) return 'Unknown';
+
+  // Sort by score descending; if tied, prefer languages higher in the list
+  entries.sort((a, b) => b[1] - a[1]);
+
+  // Resolve TypeScript vs JavaScript: if both match, TS needs >= 2 unique TS patterns
+  if (entries[0][0] === 'TypeScript' && scores['JavaScript'] && scores['TypeScript'] < 2) {
+    return 'JavaScript';
+  }
+  // Resolve C vs C++: if both match, prefer C++
+  if (entries[0][0] === 'C' && scores['C++']) {
+    return 'C++';
+  }
+
+  return entries[0][0];
+}
