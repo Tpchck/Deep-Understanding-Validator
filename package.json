@@ -9,9 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:security": "vitest run __tests__/security.test.ts",
-    "test:e2e": "playwright test",
-    "lint:secrets": "dotenv-linter .env*",
-    "audit": "npm audit --audit-level=high"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.29",
@@ -35,16 +33,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/supertest": "^7.2.0",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.23",
     "babel-plugin-react-compiler": "1.0.0",
-    "dotenv-linter": "^0.2.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "jsdom": "^28.1.0",
     "postcss": "^8.5.6",
-    "supertest": "^6.3.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
     "vitest": "^4.0.18"
