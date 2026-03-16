@@ -13,6 +13,18 @@ export async function evaluateAnswer(
     return { score: 0, feedback: "You didn't provide an answer.", weakSpots: ["No answer provided"], understood: false };
   }
 
+  // Heuristic: Check if user just copy-pasted the question
+  const normalizedQuestion = questionText.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const normalizedAnswer = userAnswer.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (normalizedAnswer.length > 10 && (normalizedQuestion.includes(normalizedAnswer) || normalizedAnswer.includes(normalizedQuestion))) {
+    return { 
+      score: 0, 
+      feedback: "You just repeated the question or its core parts. Please actually explain your understanding in your own words.", 
+      weakSpots: ["Evasion: Repeated the prompt instead of answering"], 
+      understood: false 
+    };
+  }
+
   const prompt = `You are a CS professor evaluating whether a student TRULY UNDERSTANDS their code. You're not trying to extract the perfect answer — you're checking if they grasp what they wrote.
 
 QUESTION: ${questionText}
@@ -28,6 +40,7 @@ Evaluation rules:
 - 50-79: Partial understanding — they have the right idea but miss important details
 - 30-49: Weak understanding — they touch on something relevant but miss the main point
 - 0-29: No real understanding — wrong concept, completely vague, or trying to dodge the question
+- ZERO TOLERANCE FOR REPETITION: If the student merely repeats the prompt/question back to you, copy-pastes the code without explaining, or gives a non-answer, the score MUST be exactly 0. You are strictly evaluating their explanation.
 - Be FLEXIBLE with wording — accept informal language that shows correct thinking
 - Be STRICT with concepts — don't accept hand-waving or buzzword-dropping without substance
 - Be SKEPTICAL of half-truths: if the student says something partially correct but avoids the hard part, score 40-65 and flag weakSpots
