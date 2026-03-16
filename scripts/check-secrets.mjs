@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 const PUBLIC_DIRS = ['public', 'app', 'components'];
 const SECRET_PATTERNS = [
-  /['"][\w-]*(api[_-]?key|api[_-]?secret|auth[_-]?token|password|private[_-]?key)['"][\s]*[:=]/i,
-  /['"](sk|gsk|pk)[-_][\w]+['"]/i,  // common API key prefixes
+  /['"][\w-]*(api[_-]?key|api[_-]?secret|auth[_-]?token|password|private[_-]?key)['"]\s*[:=]/i,
+  /['"](?:sk|gsk|pk)[-_][\w]+['"]/i,  // common API key prefixes
 ];
 
 // Lines referencing process.env are expected and safe

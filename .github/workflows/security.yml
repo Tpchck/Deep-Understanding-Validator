@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Check for hardcoded secrets
-        run: node scripts/check-secrets.js
+        run: node scripts/check-secrets.mjs
 
       - name: Security unit tests
         run: npm run test:security
