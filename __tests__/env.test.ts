@@ -21,6 +21,8 @@ describe("validateEnv", () => {
   it("throws when no AI provider is configured", async () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+    process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
+    process.env.STORAGE_MODE = "supabase";
     delete process.env.GROQ_API_KEY;
     process.env.USE_MOCK_AI = "false";
     const { validateEnv } = await import("@/lib/env");
@@ -30,6 +32,8 @@ describe("validateEnv", () => {
   it("passes with Supabase + Groq configured", async () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+    process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
+    process.env.STORAGE_MODE = "supabase";
     process.env.GROQ_API_KEY = "gsk_test";
     const { validateEnv } = await import("@/lib/env");
     expect(() => validateEnv()).not.toThrow();
@@ -38,6 +42,8 @@ describe("validateEnv", () => {
   it("passes with Supabase + mock AI mode", async () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+    process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
+    process.env.STORAGE_MODE = "supabase";
     delete process.env.GROQ_API_KEY;
     process.env.USE_MOCK_AI = "true";
     const { validateEnv } = await import("@/lib/env");
