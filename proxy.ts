@@ -8,7 +8,7 @@ function getTrustedOrigins(): string[] {
   return origins;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const trustedOrigins = getTrustedOrigins();
 
   // 1. CORS check

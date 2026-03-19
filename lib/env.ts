@@ -3,6 +3,8 @@ export function validateEnv() {
   const required = [
     "NEXT_PUBLIC_SUPABASE_URL",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SITE_URL",
+    "STORAGE_MODE",
   ];
 
   // At least one AI provider must be configured
