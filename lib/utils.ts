@@ -107,6 +107,9 @@ const LANG_RULES: LangRule[] = [
   { lang: 'SQL',        patterns: [/\bSELECT\b.*\bFROM\b/i, /\bCREATE\s+TABLE\b/i, /\bINSERT\s+INTO\b/i, /\bALTER\s+TABLE\b/i] },
   { lang: 'Kotlin',     patterns: [/\bfun\s+\w+\s*\(/, /\bval\s+\w+/, /\bvar\s+\w+/, /\bprintln\s*\(/, /\bdata\s+class\b/] },
   { lang: 'Swift',      patterns: [/\bfunc\s+\w+\s*\(/, /\bvar\s+\w+\s*:/, /\blet\s+\w+\s*:/, /\bprint\s*\(/, /\bguard\s+let\b/] },
+  { lang: 'HTML',       patterns: [/<!DOCTYPE\s+html>/i, /<html\b/i, /<head\b/i, /<body\b/i, /<div\b/, /<span\b/, /<\/.*?>/] },
+  { lang: 'CSS',        patterns: [/[.#]\w+\s*\{/, /margin:\s*\d+/, /padding:\s*\d+/, /color:\s*#/, /display:\s*(flex|grid|block)/, /@media\b/] },
+  { lang: 'TSX',        patterns: [/\bimport\s+.*from\s+['"]react['"]/, /<\w+.*>/, /className=/, /\binterface\s+\w+/, /\btype\s+\w+\s*=/], weight: 1.2 },
 ];
 
 /**
@@ -139,6 +142,10 @@ export function detectLanguage(code: string): string {
   // Resolve C vs C++: if both match, prefer C++
   if (entries[0][0] === 'C' && scores['C++']) {
     return 'C++';
+  }
+  // Resolve TSX vs HTML
+  if (entries[0][0] === 'HTML' && scores['TSX']) {
+    return 'TSX';
   }
 
   return entries[0][0];

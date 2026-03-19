@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
-import Sidebar from "@/components/layout/Sidebar";
+import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { listTempSessions } from "@/lib/temp-store";
 import { validateEnv } from "@/lib/env";
-import ClientParticleBackground from "@/components/ui/ClientParticleBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,13 +34,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   validateEnv();
+
+  /* Detect whether we are on the public landing page via middleware-injected header */
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "/";
+  const isLandingPage = pathname === "/";
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   let history: { id: string; language: string; code_snippet: string; created_at: string }[] = [];
-  if (user) {
+  if (user && !isLandingPage) {
     if (process.env.STORAGE_MODE === "temp") {
-      // In-memory mode — read from temp store
       history = listTempSessions().map(s => ({
         id: s.id,
         language: s.language,
@@ -48,7 +53,6 @@ export default async function RootLayout({
         created_at: s.created_at,
       }));
     } else {
-      // Supabase mode
       const { data } = await supabase
         .from("questions")
         .select("id, language, code_snippet, created_at, session_id")
@@ -56,7 +60,6 @@ export default async function RootLayout({
         .order("created_at", { ascending: false })
         .limit(150);
 
-      // deduplicate by session_id, keep first occurrence (most recent within session)
       const seen = new Set<string>();
       for (const row of data ?? []) {
         const key = row.session_id ?? row.id;
@@ -69,23 +72,23 @@ export default async function RootLayout({
     }
   }
 
+  const showSidebar = user && !isLandingPage;
+  const nickname = (user?.user_metadata?.nickname as string) ?? "";
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClientParticleBackground />
-        {user ? (
-          <div className="flex">
-            <Sidebar email={user.email ?? ""} history={history} />
-            <div className="md:ml-64 flex-1 min-h-screen">
-              {children}
-            </div>
-          </div>
-        ) : (
-          children
-        )}
+        <ClientLayoutWrapper
+          userEmail={user?.email ?? null}
+          nickname={nickname}
+          history={history}
+        >
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   );
 }
+
