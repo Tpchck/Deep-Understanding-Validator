@@ -14,6 +14,8 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key"
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+      STORAGE_MODE: "supabase"
       USE_MOCK_AI: "true"
 
     steps:

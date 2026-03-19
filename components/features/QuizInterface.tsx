@@ -10,6 +10,11 @@ import ConversationTurn from '@/components/ui/ConversationTurn';
 import FinalVerdict from '@/components/ui/FinalVerdict';
 import LoadingLogo from '@/components/ui/LoadingLogo';
 import WordReveal from '@/components/ui/WordReveal';
+import Editor from "react-simple-code-editor";
+import Prism from "prismjs";
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/themes/prism-tomorrow.css';
 
 export interface Props {
   sessionId: string;
@@ -79,21 +84,27 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     }
   });
 
+  const prevTurnsLength = useRef(turns.length);
+
   const scrollToBottom = useCallback(() => {
-    requestAnimationFrame(() => {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    });
-  }, []);
+    // Only smooth scroll if a NEW turn was added or AI is streaming, NOT on historical initial load
+    if (turns.length > prevTurnsLength.current || generatingFollowUp || generatingInitial) {
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 50);
+    }
+  }, [turns.length, generatingFollowUp, generatingInitial]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [turns, followUpQuestion, finished, generatingFollowUp, completion, scrollToBottom]);
+    prevTurnsLength.current = turns.length;
+  }, [turns.length, followUpQuestion, finished, generatingFollowUp, completion, scrollToBottom]);
 
+  // Editor automatically resizes, so we don't need manual height adjustment on change
+  // But we keep the change handler for standard input if needed or just use setCurrentAnswer directly
+  // The handleTextareaChange isn't strictly needed for the Editor component, but preserved for logic structure.
   const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCurrentAnswer(e.target.value);
-    const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
   }, []);
 
   // Current question is either the initial one or a follow-up
@@ -222,18 +233,29 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
           {!generatingInitial && activeQuestion && (
             <div className="ml-[3.75rem] space-y-3">
               <label htmlFor="answer-input" className="sr-only">Your answer</label>
-              <textarea
-                ref={textareaRef}
-                id="answer-input"
-                rows={1}
-                value={currentAnswer}
-                onChange={handleTextareaChange}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-                placeholder="Explain your understanding..."
-                disabled={evaluating}
-                style={{ resize: 'none', overflow: 'hidden' }}
-                className="w-full px-5 py-3 rounded-2xl bg-neutral-900/80 border border-neutral-700 text-neutral-100 font-sans text-base leading-7 shadow-sm focus:shadow-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 focus:outline-none transition-all duration-200 placeholder:text-neutral-500 placeholder:italic disabled:opacity-60 disabled:cursor-not-allowed scrollbar-hide"
-              />
+              <div
+                className={`relative rounded-2xl bg-neutral-900/80 border border-neutral-700 shadow-sm focus-within:shadow-lg focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-400 transition-all duration-300 overflow-hidden ${evaluating ? 'opacity-60 pointer-events-none' : ''}`}
+                style={{ minHeight: '60px' }}
+              >
+                <Editor
+                  value={currentAnswer}
+                  onValueChange={c => setCurrentAnswer(c)}
+                  highlight={code => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
+                  padding={16}
+                  textareaId="answer-input"
+                  textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
+                  preClassName="font-mono text-[15px] leading-relaxed"
+                  className="w-full text-white font-mono text-[15px] min-h-[60px]"
+                  placeholder="Explain your understanding or paste fixes... (Ctrl+Enter to Submit)"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                      e.preventDefault();
+                      handleSubmit();
+                    }
+                  }}
+                  disabled={evaluating}
+                />
+              </div>
               <button
                 onClick={handleSubmit}
                 disabled={!currentAnswer.trim() || evaluating}

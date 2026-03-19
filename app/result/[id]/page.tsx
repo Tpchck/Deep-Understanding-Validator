@@ -50,6 +50,7 @@ export default async function ResultPage({ params }: PageProps){
     return (
         <main className="min-h-screen py-8">
             <QuizInterface
+                key={id}
                 sessionId={id}
                 question={current.question_text}
                 explanation={current.explanation}

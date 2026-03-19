@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const rawNext = searchParams.get("next") ?? "/";
+  const rawNext = searchParams.get("next") ?? "/dashboard";
   // Prevent open redirect: only allow relative paths
   const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 

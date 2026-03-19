@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { middleware } from '../middleware';
+import { proxy } from '../proxy';
 import { NextRequest } from 'next/server';
 
 // Mock Supabase to avoid hitting real database
@@ -19,7 +19,7 @@ describe('Security middleware', () => {
       }),
     });
 
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(403);
     expect(await res.text()).toBe('CORS Forbidden');
   });
@@ -32,7 +32,7 @@ describe('Security middleware', () => {
       }),
     });
 
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(403);
     expect(await res.text()).toBe('CSRF Forbidden');
   });
@@ -44,14 +44,14 @@ describe('Security middleware', () => {
       }),
     });
 
-    const res = await middleware(req);
+    const res = await proxy(req);
     // User is null → middleware allows /login page without redirect
     expect(res.status).toBe(200);
   });
 
   it('redirects unauthenticated users to /login', async () => {
     const req = new NextRequest('http://localhost:3000/dashboard');
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(new URL(res.headers.get('location')!).pathname).toBe('/login');
   });
@@ -65,7 +65,7 @@ describe('Security middleware', () => {
       }),
     });
 
-    const res = await middleware(req);
+    const res = await proxy(req);
     // Should still pass (CSRF only applies to mutating methods)
     expect(res.status).not.toBe(403);
   });

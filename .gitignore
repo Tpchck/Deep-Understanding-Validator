@@ -42,3 +42,28 @@ yarn-error.log*
 next-env.d.ts
 github-activity-generator/ 
 node_modules/  
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Testing
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/.nyc_output/
+
+# Cache directories
+.eslintcache
+.npm/
+
+# Supabase
+/supabase/.temp/
+/supabase/.branch/
