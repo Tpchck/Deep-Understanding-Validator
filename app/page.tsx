@@ -153,99 +153,9 @@ function IconGitHub() {
   );
 }
 
-function TechIcon({ d, stroke }: { d: string; stroke?: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="w-6 h-6" fill={stroke ? "none" : "currentColor"} stroke={stroke ? "currentColor" : "none"} strokeWidth={stroke ? 1.5 : 0}>
-      <path d={d} />
-    </svg>
-  );
-}
 
 /* ═══════════════════════ PARTICLES (landing-specific, lighter) ═══════════════════════ */
 
-function LandingParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let raf = 0;
-    const particles: { x: number; y: number; r: number; vx: number; vy: number; alpha: number }[] = [];
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    const init = () => {
-      particles.length = 0;
-      const count = canvas.width < 768 ? 30 : 50;
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          r: Math.random() * 2 + 0.5,
-          vx: (Math.random() - 0.5) * 0.25,
-          vy: (Math.random() - 0.5) * 0.25,
-          alpha: Math.random() * 0.3 + 0.05,
-        });
-      }
-    };
-
-    resize();
-    init();
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (let i = 0; i < particles.length; i++) {
-        const a = particles[i];
-        a.x += a.vx;
-        a.y += a.vy;
-        if (a.x < 0) a.x = canvas.width;
-        if (a.x > canvas.width) a.x = 0;
-        if (a.y < 0) a.y = canvas.height;
-        if (a.y > canvas.height) a.y = 0;
-
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(168, 85, 247, ${a.alpha})`;
-        ctx.fill();
-
-        // draw connections
-        for (let j = i + 1; j < particles.length; j++) {
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 140) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 140) * 0.08})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      raf = requestAnimationFrame(draw);
-    };
-
-    draw();
-    window.addEventListener('resize', resize);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} aria-hidden="true" />;
-}
 
 /* ═══════════════════════════════════════════════════════════════════
    LANDING PAGE COMPONENT

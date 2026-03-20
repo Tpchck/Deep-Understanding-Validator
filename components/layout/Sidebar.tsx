@@ -70,7 +70,6 @@ export default function Sidebar({ email, nickname, history, isCollapsed, onToggl
       .catch(console.error);
   }, [pathname]);
 
-  const displayName = nickname || email;
 
   return (
     <>
