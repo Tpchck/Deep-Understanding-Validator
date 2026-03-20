@@ -73,3 +73,22 @@ The project includes both unit tests and end-to-end testing:
 - **Server Actions**: Most data mutations (saving turns, evaluating answers) bypass traditional API routes in favor of Next.js Server Actions to reduce client-side bundle size.
 - **Security**: The application utilizes DOMPurify to sanitize HTML rendered during the quiz conversation, preventing XSS vulnerabilities from AI-generated or user-submitted content.
 - **Rate Limiting**: Custom rate limiting logic is applied at the API and Server Action level to prevent abuse of the AI endpoints.
+
+## Deployment
+
+### Vercel
+
+This project is optimized for deployment on Vercel:
+
+1. Connect your GitHub repository to Vercel.
+2. Configure the environment variables listed in `.env.example`.
+3. Ensure `NEXT_PUBLIC_SITE_URL` is set to your production domain (e.g., `https://duv-validator.vercel.app`) to enable CSRF protection in the middleware.
+
+### Supabase Setup
+
+1. Create a new Supabase project.
+2. Run the SQL migrations found in the `supabase/migrations/` directory to set up the necessary tables and Row Level Security (RLS) policies.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -2,12 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // reactCompiler: true, // Disabled to prevent potential infinite HMR loops
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
   },
-  turbopack: {
-    root: __dirname,
-  },
+
   async headers() {
     return [
       {

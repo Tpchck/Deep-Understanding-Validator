@@ -12,13 +12,12 @@ export function validateEnv() {
     );
   }
 
-  // Provide defaults for optional runtime vars to prevent build crashes
   if (!process.env.STORAGE_MODE) {
-    console.warn("⚠️ STORAGE_MODE not set, defaulting to 'supabase'");
+    console.warn("⚠️ STORAGE_MODE not set, falling back to 'supabase'");
     process.env.STORAGE_MODE = "supabase";
   }
   if (!process.env.NEXT_PUBLIC_SITE_URL) {
-    console.warn("⚠️ NEXT_PUBLIC_SITE_URL not set, defaulting to 'http://localhost:3000'");
+    console.warn("⚠️ NEXT_PUBLIC_SITE_URL not set, falling back to 'http://localhost:3000'");
     process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
   }
 
