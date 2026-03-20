@@ -1,94 +1,76 @@
-# Deep Understanding Validator (DUV)
+<div align="center">
+  <img src="public/duvlogo.png" alt="Deep Understanding Validator Logo" width="120" />
 
-Deep Understanding Validator is an AI-powered code analysis tool designed to test and validate a developer's genuine understanding of the code they write. Instead of focusing on syntax or generic trivia, it evaluates comprehension through open-ended questions about internal mechanics, potential edge cases, and architectural decisions.
+  # Deep Understanding Validator (DUV)
 
-## How It Works
+  **Stop memorizing. Start understanding.**
 
-1. **Submission**: You paste a code snippet (e.g., C++, Python, JavaScript) into the interface.
-2. **Analysis**: The system analyzes the structure and logic of the code using Groq's LLM API.
-3. **Interrogation**: It generates specific, context-aware questions. These might involve predicting the outcome of an adversarial modification or explaining a hidden boundary trap.
-4. **Evaluation**: Your textual answer is assessed for depth of understanding. If your answer is vague or misses the mark, the system will generate targeted follow-up questions to probe further.
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+  [![Supabase](https://img.shields.io/badge/Supabase-Database-blue?logo=supabase)](https://supabase.com/)
+  [![Groq](https://img.shields.io/badge/Powered%20by-Groq-orange)](https://groq.com/)
 
-## Tech Stack
+  [🚀 **Live Demo**](https://deep-understanding-validator.vercel.app)
+</div>
 
-This project is built using a modern React ecosystem, focusing on performance and seamless server-client integration:
+---
 
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS
-- **Database & Authentication**: Supabase
-- **AI Integration**: Groq SDK (Llama models)
-- **Testing**: Vitest (Unit) and Playwright (E2E)
+## 🧐 What is DUV?
 
-## Project Structure
+**Deep Understanding Validator** is an AI-powered interrogation tool designed to test if a developer truly understands the code they've written. 
 
-- `app/` - Next.js App Router pages, layouts, and API routes.
-- `actions/` - React Server Actions handling business logic, AI evaluation, and database mutations.
-- `components/` - Reusable UI components and complex interactive features like the quiz interface.
-- `lib/` - Utility functions, API clients setup, and environment validation.
-- `supabase/` - Database migration scripts.
-- `__tests__/` and `e2e/` - Test suites.
+Traditional tests check for syntax; DUV checks for **comprehension**. It analyzes your code and asks adversarial, context-aware questions to probe for edge cases, architectural logic, and hidden traps.
 
-## Local Development
+## ✨ Key Features
 
-### Prerequisites
+- **🧠 Contextual Interrogation**: Generates non-trivial questions based on the logic of your specific code.
+- **🔄 Dynamic Follow-ups**: If your answer is vague, the AI probes deeper to find the limits of your understanding.
+- **🛡️ Security Focused**: Built-in sanitization (DOMPurify) and rate limiting to prevent abuse.
+- **⚡ High Performance**: Powered by Groq Llama models for near-instant responses.
+- **💾 Persistent Sessions**: Option to store conversations via Supabase for later review.
 
-You will need Node.js installed, as well as accounts for Supabase (for database/auth) and Groq (for the AI API).
+## 🛠️ Tech Stack
 
-### Setup
+| Category | Technologies |
+| :--- | :--- |
+| **Frontend** | [Next.js](https://nextjs.org/) (App Router), [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/) |
+| **Backend** | [React Server Actions](https://react.dev/reference/react/use-server), [Zod](https://zod.dev/) |
+| **AI Layer** | [Groq SDK](https://groq.com/), [Vercel AI SDK](https://sdk.vercel.ai/) |
+| **Database** | [Supabase](https://supabase.com/) |
+| **Testing** | [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) |
 
-1. Clone the repository and install dependencies:
+## 🚀 Getting Started
+
+### 1. Clone & Install
 ```bash
+git clone https://github.com/Tpchck/Deep-Understanding-Validator.git
+cd duv-project
 npm install
 ```
 
-2. Configure environment variables. Copy `.env.example` to `.env.local` and fill in your keys:
-```env
+### 2. Environment Setup
+Copy `.env.example` to `.env.local` and fill in your keys:
+```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 GROQ_API_KEY=your_groq_api_key
 
-# Optional: set to "true" to use mocked AI responses for UI testing without spending API credits
-USE_MOCK_AI=false
-
-# Storage mode: "temp" = in-memory store, "supabase" = real DB
+# Options: "temp" or "supabase"
 STORAGE_MODE=supabase
 ```
 
-3. Run the development server:
+### 3. Run Dev Server
 ```bash
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) to start your session.
 
-4. Open `http://localhost:3000` in your browser.
+## 🧪 Testing
 
-## Testing
+- **Unit/Integration**: `npm run test`
+- **Security Check**: `npm run test:security`
+- **E2E (Playwright)**: `npm run test:e2e`
 
-The project includes both unit tests and end-to-end testing:
-
-- **Unit/Integration Tests**: Run `npm run test` or `npm run test:security` for specific security validations.
-- **End-to-End Tests**: Run `npm run test:e2e` to execute the Playwright suite.
-
-## Architecture Notes
-
-- **Server Actions**: Most data mutations (saving turns, evaluating answers) bypass traditional API routes in favor of Next.js Server Actions to reduce client-side bundle size.
-- **Security**: The application utilizes DOMPurify to sanitize HTML rendered during the quiz conversation, preventing XSS vulnerabilities from AI-generated or user-submitted content.
-- **Rate Limiting**: Custom rate limiting logic is applied at the API and Server Action level to prevent abuse of the AI endpoints.
-
-## Deployment
-
-### Vercel
-
-This project is optimized for deployment on Vercel:
-
-1. Connect your GitHub repository to Vercel.
-2. Configure the environment variables listed in `.env.example`.
-3. Ensure `NEXT_PUBLIC_SITE_URL` is set to your production domain (e.g., `https://duv-validator.vercel.app`) to enable CSRF protection in the middleware.
-
-### Supabase Setup
-
-1. Create a new Supabase project.
-2. Run the SQL migrations found in the `supabase/migrations/` directory to set up the necessary tables and Row Level Security (RLS) policies.
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
