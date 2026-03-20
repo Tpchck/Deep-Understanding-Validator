@@ -1,7 +1,12 @@
 {
   "name": "duv-project",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tpchck/Deep-Understanding-Validator.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

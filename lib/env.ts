@@ -13,10 +13,12 @@ export function validateEnv() {
   }
 
   if (!process.env.STORAGE_MODE) {
-    console.warn("⚠️ STORAGE_MODE not set, falling back to 'supabase' behavior");
+    console.warn("⚠️ STORAGE_MODE not set, falling back to 'supabase'");
+    process.env.STORAGE_MODE = "supabase";
   }
   if (!process.env.NEXT_PUBLIC_SITE_URL) {
-    console.warn("⚠️ NEXT_PUBLIC_SITE_URL not set, falling back to 'http://localhost:3000' behavior");
+    console.warn("⚠️ NEXT_PUBLIC_SITE_URL not set, falling back to 'http://localhost:3000'");
+    process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
   }
 
   // At least one AI provider must be configured
