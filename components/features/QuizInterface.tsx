@@ -43,6 +43,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -105,12 +106,6 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     prevTurnsLength.current = turns.length;
   }, [turns.length, followUpQuestion, finished, generatingFollowUp, completion, scrollToBottom]);
 
-  // Editor automatically resizes, so we don't need manual height adjustment on change
-  // But we keep the change handler for standard input if needed or just use setCurrentAnswer directly
-  // The handleTextareaChange isn't strictly needed for the Editor component, but preserved for logic structure.
-  const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCurrentAnswer(e.target.value);
-  }, []);
 
   // Current question is either the initial one or a follow-up
   const activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;

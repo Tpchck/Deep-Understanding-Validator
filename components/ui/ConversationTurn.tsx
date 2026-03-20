@@ -1,4 +1,3 @@
-import { sanitizeHtml } from '../../lib/utils';
 import type { QuizTurn } from '@/types';
 import LoadingLogo from '@/components/ui/LoadingLogo';
 import WordReveal from '@/components/ui/WordReveal';

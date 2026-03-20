@@ -72,7 +72,6 @@ export default async function RootLayout({
     }
   }
 
-  const showSidebar = user && !isLandingPage;
   const nickname = (user?.user_metadata?.nickname as string) ?? "";
 
   return (
