@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { listTempSessions } from "@/lib/temp-store";
 import { validateEnv } from "@/lib/env";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,6 +87,7 @@ export default async function RootLayout({
         >
           {children}
         </ClientLayoutWrapper>
+        <Analytics />
       </body>
     </html>
   );

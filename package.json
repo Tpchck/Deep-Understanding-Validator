@@ -22,6 +22,7 @@
     "@ai-sdk/react": "^3.0.118",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.90.1",
+    "@vercel/analytics": "^2.0.1",
     "ai": "^6.0.116",
     "dompurify": "^3.3.2",
     "framer-motion": "^12.38.0",
