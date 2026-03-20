@@ -20,6 +20,7 @@
     "ai": "^6.0.116",
     "dompurify": "^3.3.2",
     "framer-motion": "^12.38.0",
+    "lucide-react": "^0.577.0",
     "next": "16.1.1",
     "prismjs": "^1.30.0",
     "react": "19.2.3",

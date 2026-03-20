@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import ScrollArrow from '@/components/ui/ScrollArrow';
 import { NextjsLogo, ReactLogo, TypeScriptLogo, TailwindLogo, SupabaseLogo, GroqLogo, OpenAILogo, VercelLogo, ZodLogo, NodejsLogo, PlaywrightLogo, VitestLogo } from '@/components/ui/TechLogos';
+import { HoverGlowCard } from '@/components/ui/HoverGlowCard';
 
 /* ───────────────────── Animated counter hook ───────────────────── */
 function useCountUp(target: number, duration = 2000) {
@@ -340,17 +341,19 @@ export default function LandingPage() {
               { icon: <IconAward />, step: '03', title: 'Get Your Verdict', desc: 'Receive a comprehensive understanding score with detailed feedback on your strengths and areas to explore.' },
             ].map((item, i) => (
               <Reveal key={item.step} delay={i * 150}>
-                <div className="landing-glass rounded-2xl p-8 text-center group hover:border-purple-500/20 transition-all duration-500 relative overflow-hidden">
-                  {/* Step number watermark */}
-                  <span className="absolute -top-4 -right-2 text-8xl font-black text-white/[0.02] select-none group-hover:text-purple-500/[0.05] transition-colors duration-500">
-                    {item.step}
-                  </span>
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-500/10 text-purple-400 mb-5 group-hover:bg-purple-500/20 transition-colors duration-300">
-                    {item.icon}
+                <HoverGlowCard className="landing-glass rounded-2xl h-full border border-white/5 shadow-lg transition-all duration-500">
+                  <div className="flex flex-col items-center p-8 text-center h-full w-full relative z-10">
+                    {/* Step number watermark */}
+                    <span className="absolute -top-4 -right-2 text-8xl font-black text-white/[0.02] select-none group-hover:text-purple-500/[0.05] transition-colors duration-500">
+                      {item.step}
+                    </span>
+                    <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-500/10 text-purple-400 mb-6 group-hover:bg-purple-500/20 transition-colors duration-300 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                      {item.icon}
+                    </div>
+                    <h3 className="text-xl font-bold mb-4 text-white">{item.title}</h3>
+                    <p className="text-neutral-400 text-sm leading-relaxed max-w-[280px]">{item.desc}</p>
                   </div>
-                  <h3 className="text-lg font-semibold mb-3">{item.title}</h3>
-                  <p className="text-neutral-400 text-sm leading-relaxed">{item.desc}</p>
-                </div>
+                </HoverGlowCard>
               </Reveal>
             ))}
           </div>
@@ -379,11 +382,15 @@ export default function LandingPage() {
               { icon: <IconHistory />, title: 'Session History', desc: 'Every analysis is saved to your personal dashboard. Review past conversations, track your progress, and revisit challenging concepts anytime.' },
             ].map((f, i) => (
               <Reveal key={f.title} delay={i * 100}>
-                <div className="landing-glass rounded-2xl p-8 group hover:border-purple-500/20 transition-all duration-500">
-                  <div className="text-purple-400 mb-4 group-hover:text-purple-300 transition-colors duration-300">{f.icon}</div>
-                  <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
-                  <p className="text-neutral-400 text-sm leading-relaxed">{f.desc}</p>
-                </div>
+                <HoverGlowCard className="landing-glass rounded-2xl h-full border border-white/5 shadow-lg transition-all duration-500">
+                  <div className="flex flex-col items-center p-8 text-center h-full w-full">
+                    <div className="text-purple-400 mb-5 group-hover:text-purple-300 transition-colors duration-300 group-hover:scale-110 transform transition-transform duration-500 drop-shadow-[0_0_8px_rgba(168,85,247,0.3)]">
+                      {f.icon}
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-white">{f.title}</h3>
+                    <p className="text-neutral-400 text-sm leading-relaxed">{f.desc}</p>
+                  </div>
+                </HoverGlowCard>
               </Reveal>
             ))}
           </div>
@@ -401,30 +408,32 @@ export default function LandingPage() {
             <p className="text-center text-neutral-500 mb-16 max-w-lg mx-auto">Built with a modern, production-grade stack.</p>
           </Reveal>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[
-              { name: 'Next.js', icon: <NextjsLogo /> },
-              { name: 'React', icon: <ReactLogo /> },
-              { name: 'TypeScript', icon: <TypeScriptLogo /> },
-              { name: 'Tailwind CSS', icon: <TailwindLogo /> },
-              { name: 'Supabase', icon: <SupabaseLogo /> },
-              { name: 'Groq', icon: <GroqLogo /> },
-              { name: 'OpenAI', icon: <OpenAILogo /> },
-              { name: 'Vercel AI SDK', icon: <VercelLogo /> },
-              { name: 'Zod', icon: <ZodLogo /> },
-              { name: 'Playwright', icon: <PlaywrightLogo /> },
-              { name: 'Vitest', icon: <VitestLogo /> },
-              { name: 'Node.js', icon: <NodejsLogo /> },
+              { name: 'Next.js', icon: <NextjsLogo className="w-10 h-10 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
+              { name: 'React', icon: <ReactLogo className="w-10 h-10 text-[#61DAFB] drop-shadow-[0_0_15px_rgba(97,218,251,0.3)]" /> },
+              { name: 'TypeScript', icon: <TypeScriptLogo className="w-10 h-10 text-[#3178C6] drop-shadow-[0_0_15px_rgba(49,120,198,0.3)]" /> },
+              { name: 'Tailwind CSS', icon: <TailwindLogo className="w-10 h-10 text-[#06B6D4] drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" /> },
+              { name: 'Supabase', icon: <SupabaseLogo className="w-10 h-10 text-[#3ECF8E] drop-shadow-[0_0_15px_rgba(62,207,142,0.3)]" /> },
+              { name: 'Groq SDK', icon: <GroqLogo className="w-10 h-10 text-[#F55036] drop-shadow-[0_0_15px_rgba(245,80,54,0.3)]" /> },
+              { name: 'OpenAI', icon: <OpenAILogo className="w-10 h-10 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
+              { name: 'Vercel AI SDK', icon: <VercelLogo className="w-10 h-10 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
+              { name: 'Zod', icon: <ZodLogo className="w-10 h-10 text-[#3E67B1] drop-shadow-[0_0_15px_rgba(62,103,177,0.3)]" /> },
+              { name: 'Playwright', icon: <PlaywrightLogo className="w-10 h-10 text-[#2EAD33] drop-shadow-[0_0_15px_rgba(46,173,51,0.3)]" /> },
+              { name: 'Vitest', icon: <VitestLogo className="w-10 h-10 text-[#FCC72B] drop-shadow-[0_0_15px_rgba(252,199,43,0.3)]" /> },
+              { name: 'Node.js', icon: <NodejsLogo className="w-10 h-10 text-[#5FA04E] drop-shadow-[0_0_15px_rgba(95,160,78,0.3)]" /> },
             ].map((tech, i) => (
               <Reveal key={tech.name} delay={i * 50}>
-                <div className="landing-glass rounded-xl p-5 flex items-center gap-3 group hover:border-purple-500/20 transition-all duration-300">
-                  <div className="shrink-0 drop-shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(168,85,247,0.4)] flex items-center justify-center">
-                    {tech.icon}
+                <HoverGlowCard className="landing-glass rounded-2xl h-full border border-white/5 shadow-lg bg-[#111] overflow-hidden">
+                  <div className="flex flex-col items-center justify-center p-8 gap-6 h-full w-full relative z-10 transition-transform duration-500 group-hover:scale-[1.02]">
+                    <div className="shrink-0 flex items-center justify-center h-16 w-16 rounded-2xl bg-white/[0.03] border border-white/[0.05] transition-all duration-500 group-hover:bg-white/[0.07] group-hover:border-white/[0.1] group-hover:scale-110 shadow-xl">
+                      {tech.icon}
+                    </div>
+                    <span className="text-base font-bold text-white tracking-wide text-center">
+                      {tech.name}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-neutral-300 group-hover:text-white transition-colors duration-300">
-                    {tech.name}
-                  </span>
-                </div>
+                </HoverGlowCard>
               </Reveal>
             ))}
           </div>
@@ -457,17 +466,13 @@ export default function LandingPage() {
       {/* ──── CENTRAL AI CTA MODULE ──── */}
       <section id="cta" className="relative min-h-screen flex flex-col justify-center py-20 px-6">
         <Reveal>
-          <div className="max-w-3xl mx-auto w-full landing-glass rounded-3xl p-12 md:p-16 text-center relative overflow-hidden">
-            {/* Bg glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full opacity-30 pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.3) 0%, transparent 70%)' }} />
-
-            <div className="relative">
+          <HoverGlowCard className="max-w-3xl mx-auto w-full landing-glass rounded-3xl p-12 md:p-16 text-center transform-gpu">
+            <div className="relative z-10">
               <div className="inline-flex mb-6">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/duvlogo.png" alt="" className="w-16 h-16 rounded-full animate-float" />
+                <img src="/duvlogo.png" alt="" className="w-16 h-16 rounded-full animate-float drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 drop-shadow-md">
                 Ready to Prove Your Understanding?
               </h2>
               <p className="text-neutral-400 mb-8 max-w-lg mx-auto">
@@ -484,7 +489,7 @@ export default function LandingPage() {
                 </svg>
               </Link>
             </div>
-          </div>
+          </HoverGlowCard>
         </Reveal>
         <ScrollArrow targetId="hero" direction="up" />
       </section>
