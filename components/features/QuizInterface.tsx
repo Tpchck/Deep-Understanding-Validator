@@ -38,8 +38,13 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
   const [finished, setFinished] = useState(initialFinished);
   const [activeQuestionState, setActiveQuestionState] = useState(question);
   const [isRejected, setIsRejected] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { complete: completeInitial, completion: initialCompletion, isLoading: generatingInitial } = useCompletion({
     api: '/api/generate-question',
@@ -237,24 +242,30 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
                 className={`relative rounded-2xl bg-neutral-900/80 border border-neutral-700 shadow-sm focus-within:shadow-lg focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-400 transition-all duration-300 overflow-hidden ${evaluating ? 'opacity-60 pointer-events-none' : ''}`}
                 style={{ minHeight: '60px' }}
               >
-                <Editor
-                  value={currentAnswer}
-                  onValueChange={c => setCurrentAnswer(c)}
-                  highlight={code => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
-                  padding={16}
-                  textareaId="answer-input"
-                  textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
-                  preClassName="font-mono text-[15px] leading-relaxed"
-                  className="w-full text-white font-mono text-[15px] min-h-[60px]"
-                  placeholder="Explain your understanding or paste fixes... (Ctrl+Enter to Submit)"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                      e.preventDefault();
-                      handleSubmit();
-                    }
-                  }}
-                  disabled={evaluating}
-                />
+                {mounted ? (
+                  <Editor
+                    value={currentAnswer}
+                    onValueChange={c => setCurrentAnswer(c)}
+                    highlight={code => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
+                    padding={16}
+                    textareaId="answer-input"
+                    textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
+                    preClassName="font-mono text-[15px] leading-relaxed"
+                    className="w-full text-white font-mono text-[15px] min-h-[60px]"
+                    placeholder="Explain your understanding or paste fixes... (Ctrl+Enter to Submit)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        handleSubmit();
+                      }
+                    }}
+                    disabled={evaluating}
+                  />
+                ) : (
+                  <div className="w-full text-neutral-500 font-sans text-[15px] p-4 min-h-[60px] italic">
+                    Loading editor...
+                  </div>
+                )}
               </div>
               <button
                 onClick={handleSubmit}
