@@ -22,46 +22,100 @@ export async function POST(req: NextRequest) {
 
   const { prompt: code, sessionId } = await req.json();
 
-  const prompt = `You are a senior computer science professor conducting a deep technical interview.
-You receive a code snippet from a student. 
+  const prompt = `You are a friendly, senior computer science mentor conducting a code review. 
+You receive a code snippet from a developer.
 
-BEFORE doing anything, determine whether the input is ACTUAL CODE (any programming language, pseudocode, or config files count as code).
-If the input is NOT code, reply exactly with: "REJECTED: This doesn't look like code. Please paste a valid code snippet."
+First, think step-by-step about the code inside <thinking>...</thinking> tags. 
+In your thinking:
+1. Is this actual code (or config/pseudocode)? If not, decide on a polite refusal.
+2. What is the real complexity of this code? (Beginner, Intermediate, Advanced).
+3. What is ONE highly insightful, non-surface-level question you can ask to test their deep understanding? Focus on an unconsidered edge case, concurrency issue, or hidden architectural assumption.
 
-If the input IS code, generate EXACTLY 1 highly insightful, open-ended question to test deep understanding.
-Do NOT ask surface-level questions (like "What does this loop do?").
-Instead, mentally trace the code and logically identify ONE potential unconsidered spot, edge case, or architectural flaw. 
+After your <thinking> block, respond NATURALLY as a mentor.
+- Start with a brief, encouraging greeting.
+- State your question clearly.
+- AT THE VERY END, append exactly: "**DIFFICULTY LEVEL:** [beginner|intermediate|advanced]"
 
-Question formulation rules:
-- Be inventive and simple in your phrasing. Don't use overly academic jargon.
-- Probe a multi-factor vulnerability: e.g., "What happens if function X is called concurrently while Y is mutating the state?" or "Explain the hidden assumption this code makes about the input data structure."
-- Focus on ONE specific, profound aspect of the code.
-- Provide ONLY the question text. Do NOT include greetings, prefixes, or any JSON. Just the question.
+--- FEW-SHOT EXAMPLES ---
+
+Example 1 (Basic Code):
+USER:
+def add(a, b):
+  return a + b
+
+YOU:
+<thinking>
+1. Yes, this is basic Python code.
+2. The complexity is very low. It's just adding two numbers. Level: beginner.
+3. A good question would probe if they understand type coercion in Python (e.g., adding a string and an int).
+</thinking>
+Hi there! This is a nice, clean addition function. 
+
+To test your understanding, what would happen in this function if I passed an integer for \`a\` and a string for \`b\`? How would Python handle it?
+
+**DIFFICULTY LEVEL:** beginner
+
+Example 2 (Advanced Code):
+USER:
+const [data, setData] = useState(null);
+useEffect(() => {
+  fetch('/api/data').then(r => r.json()).then(setData);
+}, []);
+
+YOU:
+<thinking>
+1. Yes, this is React code.
+2. There's a subtle race condition issue if the component unmounts or re-renders quickly. Level: advanced.
+3. A good question probes the lack of an AbortController or cleanup function.
+</thinking>
+Hello! This is a very common pattern in React for fetching data on mount.
+
+However, I have a question about its resilience: What happens if the component unmounts before the \`fetch\` Promise resolves? What potential bug does this structure hide?
+
+**DIFFICULTY LEVEL:** advanced
+
+--- END EXAMPLES ---
+
+Now evaluate the following code. Remember: Think inside <thinking> tags, then give a natural response ending with the difficulty level.
 
 Code:
 ${code}`;
 
-  // NOTE: streamText is lazy — errors during the stream itself cannot be caught
-  // by a surrounding try/catch because the response is already returned.
   let result;
   try {
-    console.log("[generate-question] Starting streamText for code snippet...");
+    console.log("[generate-question] Starting CoT streamText for code snippet...");
     result = streamText({
       model: groq(MODEL_NAME),
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      maxOutputTokens: 600,
+      temperature: 0.75, // balanced for reasoning and natural tone
+      maxOutputTokens: 1000,
       onFinish: async ({ text }) => {
-        // Persist the generated question to DB so page reloads don't re-call AI
-        if (!text || text.startsWith('REJECTED:')) return;
+        if (!text) return;
+
+        // Parse difficulty level
+        const diffMatch = text.match(/\*\*DIFFICULTY LEVEL:\*\*\s*(beginner|intermediate|advanced)/i);
+        const difficultyLevel = diffMatch ? diffMatch[1].toLowerCase() : 'medium'; // fallback
+
+        // Clean out <thinking> block for the DB version (or keep it if the UI sanitizes it)
+        // We will keep the whole text and let the UI hide <thinking> tags to show loading state.
+        // Wait, if we keep the thinking tags in the DB, the history will show it. Better to strip it.
+        const cleanedText = text.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
+
         if (sessionId && !isTempStoreMode()) {
           try {
+            // Update both the text and the new difficulty_level column, also updating legacy difficulty
+            const legacyDiff = difficultyLevel === 'beginner' ? 'easy' : (difficultyLevel === 'advanced' ? 'hard' : 'medium');
+            
             const { error } = await supabase
               .from('questions')
-              .update({ question_text: text })
+              .update({ 
+                question_text: cleanedText,
+                difficulty_level: difficultyLevel,
+                difficulty: legacyDiff // keep backwards compatibility for now
+              })
               .eq('id', sessionId);
             if (error) console.error('[generate-question] DB save error:', error);
-            else console.log('[generate-question] Saved question to DB for session:', sessionId);
+            else console.log('[generate-question] Saved CoT question to DB for session:', sessionId);
           } catch (e) {
             console.error('[generate-question] Failed to save question:', e);
           }

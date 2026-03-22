@@ -58,7 +58,8 @@ export async function processCodeSubmission(formData: FormData) {
                 options: [],
                 correct_option_index: 0,
                 explanation: '',
-                difficulty: 'medium',
+                difficulty: 'pending', // AI will overwrite this
+                difficulty_level: 'pending', // AI will overwrite this
                 language: detectedLanguage,
                 user_id: user?.id ?? null,
                 session_id: sessionId,

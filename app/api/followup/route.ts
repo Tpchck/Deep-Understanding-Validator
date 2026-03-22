@@ -19,9 +19,14 @@ export async function POST(req: NextRequest) {
   }
 
   const { prompt: reqBody } = await req.json();
-  const { originalQuestion, userAnswer, codeSnippet, weakSpots } = JSON.parse(reqBody);
+  const { originalQuestion, userAnswer, codeSnippet, weakSpots, difficultyLevel } = JSON.parse(reqBody);
+
+  const difficultyText = difficultyLevel && difficultyLevel !== 'pending'
+    ? `\nThis is a [**${difficultyLevel.toUpperCase()}**] level code evaluation. Adjust your follow-up strictness accordingly.`
+    : '';
 
   const prompt = `You are a CS professor conducting an oral exam. The student answered a question about their code, but their answer revealed gaps in understanding. You need to ask ONE targeted follow-up question.
+${difficultyText}
 
 ORIGINAL QUESTION: ${originalQuestion}
 STUDENT'S ANSWER: ${userAnswer}
