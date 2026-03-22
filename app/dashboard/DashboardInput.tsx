@@ -20,6 +20,7 @@ export default function DashboardInput() {
   const prevCodeLen = useRef(0);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

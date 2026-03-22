@@ -108,7 +108,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
 
 
   // Current question is either the initial one or a follow-up
-  let activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;
+  const activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;
   
   // Parse dynamic difficulty
   let displayDifficulty = 'pending';
