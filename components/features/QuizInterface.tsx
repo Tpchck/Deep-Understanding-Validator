@@ -108,7 +108,24 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
 
 
   // Current question is either the initial one or a follow-up
-  const activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;
+  let activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;
+  
+  // Parse dynamic difficulty
+  let displayDifficulty = 'pending';
+  let displayQuestion = activeQuestion;
+  
+  if (displayQuestion) {
+    const diffMatch = displayQuestion.match(/\*\*DIFFICULTY LEVEL:\*\*\s*(beginner|intermediate|advanced)/i);
+    if (diffMatch) {
+      displayDifficulty = diffMatch[1].toLowerCase();
+      // Remove the difficulty text and any <thinking> blocks conceptually (though route strips thinking for DB)
+      displayQuestion = displayQuestion.replace(/\s*\*\*DIFFICULTY LEVEL:\*\*\s*(beginner|intermediate|advanced)/gi, '').trim();
+      displayQuestion = displayQuestion.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
+    } else {
+      displayQuestion = displayQuestion.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
+    }
+  }
+
   const followUpCount = turns.filter(t => t.isFollowUp).length;
 
   const handleSubmit = async () => {
@@ -118,13 +135,14 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     setEvaluating(true);
 
     const result = await evaluateAnswer(
-      activeQuestion,
+      displayQuestion, // Pass stripped question to avoid confusing the evaluator
       text,
-      codeSnippet
+      codeSnippet,
+      displayDifficulty // Passing the level for adaptive evaluation strictness
     );
 
     const turn: QuizTurn = {
-      question: activeQuestion,
+      question: displayQuestion,
       userAnswer: text,
       score: result.score,
       feedback: result.feedback,
@@ -139,7 +157,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     setEvaluating(false);
 
     // Decide: understood, too weak, or probe further?
-    const saveQuestionText = turns.length === 0 ? activeQuestionState : null;
+    const saveQuestionText = turns.length === 0 ? displayQuestion : null;
 
     if (result.understood || followUpCount >= MAX_FOLLOWUPS) {
       // Clearly understood or ran out of follow-ups
@@ -160,10 +178,11 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
       setCompletion('');
       await saveTurns(sessionId, newTurns, false, null, saveQuestionText);
       complete(JSON.stringify({
-        originalQuestion: activeQuestion,
+        originalQuestion: displayQuestion,
         userAnswer: text,
         codeSnippet,
-        weakSpots: spots
+        weakSpots: spots,
+        difficultyLevel: displayDifficulty
       }));
     }
   };
@@ -178,9 +197,12 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
   return (
     <div className="space-y-6 max-w-3xl mx-auto p-6">
       {/* header */}
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex items-center justify-between text-sm mb-2">
         <span className="text-neutral-400">Deep Understanding Check</span>
-        <span className="text-xs font-mono text-purple-400">{language}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono text-purple-400 px-2 py-0.5 bg-purple-500/10 rounded">{language}</span>
+          <DifficultyBadge difficulty={displayDifficulty} />
+        </div>
       </div>
 
       <CodeBlock code={codeSnippet} language={language} />
@@ -216,8 +238,8 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
           <div className="flex gap-3">
             <LoadingLogo size={48} animated={generatingInitial} />
             <div className="bg-neutral-800 rounded-lg p-4 flex-1">
-              {activeQuestion ? (
-                <WordReveal key={turns.length} text={activeQuestion} className="text-white" />
+              {displayQuestion ? (
+                <WordReveal key={turns.length} text={displayQuestion} className="text-white" />
               ) : (
                 <div className="flex items-center gap-3">
                   <span className="text-neutral-400 text-sm">Analyzing code and generating question...</span>
@@ -291,5 +313,25 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
 
       <div ref={bottomRef} />
     </div>
+  );
+}
+
+function DifficultyBadge({ difficulty }: { difficulty: string }) {
+  if (difficulty === 'pending') {
+    return (
+      <span className="text-[10px] px-2 py-0.5 rounded-full border bg-neutral-800/50 text-neutral-500 border-neutral-700/50 animate-pulse">
+        analyzing...
+      </span>
+    );
+  }
+  const colors: Record<string, string> = {
+    beginner: "bg-green-500/10 text-green-400 border-green-500/20",
+    intermediate: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+    advanced: "bg-red-500/10 text-red-400 border-red-500/20",
+  };
+  return (
+    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${colors[difficulty] ?? "bg-neutral-800 text-neutral-400 border-neutral-700"}`}>
+      {difficulty}
+    </span>
   );
 }

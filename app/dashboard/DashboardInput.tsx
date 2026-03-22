@@ -14,9 +14,14 @@ export default function DashboardInput() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const prevCodeLen = useRef(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (code.length - prevCodeLen.current > 50) {
@@ -71,18 +76,24 @@ export default function DashboardInput() {
              minHeight: isEmpty ? '70px' : '150px' 
           }}
         >
-          <Editor
-            value={code}
-            onValueChange={c => setCode(c)}
-            highlight={code => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
-            padding={20}
-            textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
-            preClassName="font-mono text-sm leading-6"
-            className="w-full h-full text-white font-mono text-sm min-h-[70px]"
-            placeholder="Paste your code... (Ctrl+Enter to Analyze)"
-            onKeyDown={handleKeyDown}
-            disabled={loading}
-          />
+          {mounted ? (
+            <Editor
+              value={code}
+              onValueChange={c => setCode(c)}
+              highlight={code => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
+              padding={20}
+              textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
+              preClassName="font-mono text-sm leading-6"
+              className="w-full h-full text-white font-mono text-sm min-h-[70px]"
+              placeholder="Paste your code... (Ctrl+Enter to Analyze)"
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+            />
+          ) : (
+            <div className="w-full h-full text-neutral-500 font-sans text-sm p-5 min-h-[70px] italic">
+              Loading editor...
+            </div>
+          )}
         </div>
 
         <div className={`transition-all duration-500 overflow-hidden ${error ? 'max-h-12 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>

@@ -186,7 +186,7 @@ export default function LandingPage() {
       </header>
 
       {/* ──── HERO SECTION ──── */}
-      <section id="hero" className="relative flex flex-col items-center justify-center text-center min-h-screen px-6 pt-8 pb-16">
+      <section id="hero" className="relative flex flex-col items-center justify-center text-center min-h-screen px-6 pt-8 pb-32">
         {/* Decorative radial glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.4) 0%, transparent 70%)' }} />
@@ -235,7 +235,7 @@ export default function LandingPage() {
       </section>
 
       {/* ──── HOW IT WORKS ──── */}
-      <section id="how-it-works" className="relative min-h-screen flex flex-col justify-center py-20 px-6">
+      <section id="how-it-works" className="relative min-h-screen flex flex-col justify-center pt-20 pb-32 px-6">
         <div className="max-w-5xl mx-auto w-full">
           <Reveal>
             <h2 className="text-center text-3xl md:text-4xl font-bold mb-4">
@@ -309,7 +309,7 @@ export default function LandingPage() {
       </section>
 
       {/* ──── TECHNOLOGIES ──── */}
-      <section id="technologies" className="relative min-h-screen flex flex-col justify-center py-20 px-6">
+      <section id="technologies" className="relative min-h-screen flex flex-col justify-center pt-20 pb-32 px-6">
         <div className="max-w-5xl mx-auto w-full">
           <Reveal>
             <h2 className="text-center text-3xl md:text-4xl font-bold mb-4">
@@ -318,28 +318,28 @@ export default function LandingPage() {
             <p className="text-center text-neutral-500 mb-16 max-w-lg mx-auto">Built with a modern, production-grade stack.</p>
           </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             {[
-              { name: 'Next.js', icon: <NextjsLogo className="w-10 h-10 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
-              { name: 'React', icon: <ReactLogo className="w-10 h-10 text-[#61DAFB] drop-shadow-[0_0_15px_rgba(97,218,251,0.3)]" /> },
-              { name: 'TypeScript', icon: <TypeScriptLogo className="w-10 h-10 text-[#3178C6] drop-shadow-[0_0_15px_rgba(49,120,198,0.3)]" /> },
-              { name: 'Tailwind CSS', icon: <TailwindLogo className="w-10 h-10 text-[#06B6D4] drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" /> },
-              { name: 'Supabase', icon: <SupabaseLogo className="w-10 h-10 text-[#3ECF8E] drop-shadow-[0_0_15px_rgba(62,207,142,0.3)]" /> },
-              { name: 'Groq SDK', icon: <GroqLogo className="w-10 h-10 text-[#F55036] drop-shadow-[0_0_15px_rgba(245,80,54,0.3)]" /> },
-              { name: 'OpenAI', icon: <OpenAILogo className="w-10 h-10 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
-              { name: 'Vercel AI SDK', icon: <VercelLogo className="w-10 h-10 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
-              { name: 'Zod', icon: <ZodLogo className="w-10 h-10 text-[#3E67B1] drop-shadow-[0_0_15px_rgba(62,103,177,0.3)]" /> },
-              { name: 'Playwright', icon: <PlaywrightLogo className="w-10 h-10 text-[#2EAD33] drop-shadow-[0_0_15px_rgba(46,173,51,0.3)]" /> },
-              { name: 'Vitest', icon: <VitestLogo className="w-10 h-10 text-[#FCC72B] drop-shadow-[0_0_15px_rgba(252,199,43,0.3)]" /> },
-              { name: 'Node.js', icon: <NodejsLogo className="w-10 h-10 text-[#5FA04E] drop-shadow-[0_0_15px_rgba(95,160,78,0.3)]" /> },
+              { name: 'Next.js', icon: <NextjsLogo className="w-8 h-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
+              { name: 'React', icon: <ReactLogo className="w-8 h-8 text-[#61DAFB] drop-shadow-[0_0_15px_rgba(97,218,251,0.3)]" /> },
+              { name: 'TypeScript', icon: <TypeScriptLogo className="w-8 h-8 text-[#3178C6] drop-shadow-[0_0_15px_rgba(49,120,198,0.3)]" /> },
+              { name: 'Tailwind CSS', icon: <TailwindLogo className="w-8 h-8 text-[#06B6D4] drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" /> },
+              { name: 'Supabase', icon: <SupabaseLogo className="w-8 h-8 text-[#3ECF8E] drop-shadow-[0_0_15px_rgba(62,207,142,0.3)]" /> },
+              { name: 'Groq SDK', icon: <GroqLogo className="w-8 h-8 text-[#F55036] drop-shadow-[0_0_15px_rgba(245,80,54,0.3)]" /> },
+              { name: 'OpenAI', icon: <OpenAILogo className="w-8 h-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
+              { name: 'Vercel', icon: <VercelLogo className="w-8 h-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" /> },
+              { name: 'Zod', icon: <ZodLogo className="w-8 h-8 text-[#3E67B1] drop-shadow-[0_0_15px_rgba(62,103,177,0.3)]" /> },
+              { name: 'Playwright', icon: <PlaywrightLogo className="w-8 h-8 text-[#2EAD33] drop-shadow-[0_0_15px_rgba(46,173,51,0.3)]" /> },
+              { name: 'Vitest', icon: <VitestLogo className="w-8 h-8 text-[#FCC72B] drop-shadow-[0_0_15px_rgba(252,199,43,0.3)]" /> },
+              { name: 'Node.js', icon: <NodejsLogo className="w-8 h-8 text-[#5FA04E] drop-shadow-[0_0_15px_rgba(95,160,78,0.3)]" /> },
             ].map((tech, i) => (
-              <Reveal key={tech.name} delay={i * 50}>
+              <Reveal key={tech.name} delay={i * 30}>
                 <HoverGlowCard className="landing-glass rounded-2xl h-full border border-white/5 shadow-lg bg-[#111] overflow-hidden">
-                  <div className="flex flex-col items-center justify-center p-8 gap-6 h-full w-full relative z-10 transition-transform duration-500 group-hover:scale-[1.02]">
-                    <div className="shrink-0 flex items-center justify-center h-16 w-16 rounded-2xl bg-white/[0.03] border border-white/[0.05] transition-all duration-500 group-hover:bg-white/[0.07] group-hover:border-white/[0.1] group-hover:scale-110 shadow-xl">
+                  <div className="flex flex-col items-center justify-center p-5 gap-4 h-full w-full relative z-10 transition-transform duration-500 group-hover:scale-[1.03]">
+                    <div className="shrink-0 flex items-center justify-center h-14 w-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] transition-all duration-500 group-hover:bg-white/[0.07] group-hover:border-white/[0.1] group-hover:scale-110 shadow-xl">
                       {tech.icon}
                     </div>
-                    <span className="text-base font-bold text-white tracking-wide text-center">
+                    <span className="text-sm font-bold text-white tracking-wide text-center">
                       {tech.name}
                     </span>
                   </div>
@@ -352,7 +352,7 @@ export default function LandingPage() {
       </section>
 
       {/* ──── STATS ──── */}
-      <section id="stats" className="relative min-h-screen flex flex-col justify-center py-20 px-6">
+      <section id="stats" className="relative min-h-screen flex flex-col justify-center pt-20 pb-32 px-6">
         <div className="max-w-4xl mx-auto w-full">
           <Reveal>
             <h2 className="text-center text-3xl md:text-4xl font-bold mb-16">

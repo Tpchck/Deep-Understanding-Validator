@@ -7,7 +7,8 @@ import type { EvaluationResult } from "@/types";
 export async function evaluateAnswer(
   questionText: string,
   userAnswer: string,
-  codeSnippet: string
+  codeSnippet: string,
+  difficultyLevel?: string
 ): Promise<EvaluationResult> {
   if (!userAnswer.trim()) {
     return { score: 0, feedback: "You didn't provide an answer.", weakSpots: ["No answer provided"], understood: false };
@@ -25,7 +26,18 @@ export async function evaluateAnswer(
     };
   }
 
+  const difficultyText = difficultyLevel && difficultyLevel !== 'pending' 
+    ? `\nThis is a [**${difficultyLevel.toUpperCase()}**] level question. Adjust your expectations accordingly:` 
+    : '';
+
+  const difficultyRules = difficultyLevel === 'beginner' 
+    ? '- Be extremely forgiving with terminology as long as the core concept is correct.'
+    : difficultyLevel === 'advanced'
+    ? '- Be rigorous. Expect precise terminology and a deep architectural explanation.'
+    : '- Be FLEXIBLE with wording — accept informal language that shows correct thinking, but be STRICT with concepts.';
+
   const prompt = `You are a CS professor evaluating whether a student TRULY UNDERSTANDS their code. You're not trying to extract the perfect answer — you're checking if they grasp what they wrote.
+${difficultyText}
 
 QUESTION: ${questionText}
 
@@ -41,8 +53,7 @@ Evaluation rules:
 - 30-49: Weak understanding — they touch on something relevant but miss the main point
 - 0-29: No real understanding — wrong concept, completely vague, or trying to dodge the question
 - ZERO TOLERANCE FOR REPETITION: If the student merely repeats the prompt/question back to you, copy-pastes the code without explaining, or gives a non-answer, the score MUST be exactly 0. You are strictly evaluating their explanation.
-- Be FLEXIBLE with wording — accept informal language that shows correct thinking
-- Be STRICT with concepts — don't accept hand-waving or buzzword-dropping without substance
+${difficultyRules}
 - Be SKEPTICAL of half-truths: if the student says something partially correct but avoids the hard part, score 40-65 and flag weakSpots
 
 Feedback structure (IMPORTANT):
