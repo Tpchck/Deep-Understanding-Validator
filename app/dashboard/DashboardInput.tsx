@@ -27,10 +27,14 @@ export default function DashboardInput() {
   useEffect(() => {
     if (code.length - prevCodeLen.current > 50) {
       // It's a large paste. The CSS transition takes 700ms.
-      // We do a smooth scroll so the bottom of the form (Submit button) is in view.
+      // Scroll immediately after paint, and again after transition finishes
+      // to ensure the newly animated submit button stays fully in view.
       setTimeout(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }, 50);
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 750);
     }
     prevCodeLen.current = code.length;
   }, [code]);
