@@ -107,10 +107,8 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
   }, [turns.length, followUpQuestion, finished, generatingFollowUp, completion, scrollToBottom]);
 
 
-  // Current question is either the initial one or a follow-up
   const activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;
   
-  // Parse dynamic difficulty
   let displayDifficulty = 'pending';
   let displayQuestion = activeQuestion;
   
@@ -118,7 +116,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     const diffMatch = displayQuestion.match(/\*\*DIFFICULTY LEVEL:\*\*\s*(beginner|intermediate|advanced)/i);
     if (diffMatch) {
       displayDifficulty = diffMatch[1].toLowerCase();
-      // Remove the difficulty text and any <thinking> blocks conceptually (though route strips thinking for DB)
+      // Remove difficulty and thinking text
       displayQuestion = displayQuestion.replace(/\s*\*\*DIFFICULTY LEVEL:\*\*\s*(beginner|intermediate|advanced)/gi, '').trim();
       displayQuestion = displayQuestion.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
     } else {
@@ -187,7 +185,6 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     }
   };
 
-  // Calculate overall understanding from all turns
   const bestScore = turns.length > 0 ? Math.max(...turns.map(t => t.score)) : 0;
   const finalVerdict = bestScore >= 80 ? 'strong' : bestScore >= 30 ? 'partial' : 'weak';
   const allWeakSpots = [...new Set(turns.flatMap(t => t.weakSpots))];

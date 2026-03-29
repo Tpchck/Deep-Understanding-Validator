@@ -92,18 +92,14 @@ ${code}`;
       onFinish: async ({ text }) => {
         if (!text) return;
 
-        // Parse difficulty level
         const diffMatch = text.match(/\*\*DIFFICULTY LEVEL:\*\*\s*(beginner|intermediate|advanced)/i);
-        const difficultyLevel = diffMatch ? diffMatch[1].toLowerCase() : 'medium'; // fallback
+        const difficultyLevel = diffMatch ? diffMatch[1].toLowerCase() : 'medium';
 
-        // Clean out <thinking> block for the DB version (or keep it if the UI sanitizes it)
-        // We will keep the whole text and let the UI hide <thinking> tags to show loading state.
-        // Wait, if we keep the thinking tags in the DB, the history will show it. Better to strip it.
+        // Strip <thinking> block to prevent it from showing in the UI history
         const cleanedText = text.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
 
         if (sessionId && !isTempStoreMode()) {
           try {
-            // Update both the text and the new difficulty_level column, also updating legacy difficulty
             const legacyDiff = difficultyLevel === 'beginner' ? 'easy' : (difficultyLevel === 'advanced' ? 'hard' : 'medium');
             
             const { error } = await supabase

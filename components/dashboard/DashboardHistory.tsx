@@ -8,7 +8,6 @@ interface DashboardHistoryProps {
   initialItems: {
     id: string;
     question_text: string;
-    code_snippet: string;
     difficulty: string;
     language: string;
     created_at: string;
@@ -28,11 +27,11 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
     });
   }, [items, filterLang, filterDiff]);
 
-  // Derived stats based on current filtered items OR all items, usually it's nice if stats reflect filters
+  // Stats reflecting current filters
   const total = filteredItems.length;
   const byDifficulty = { easy: 0, medium: 0, hard: 0 };
   const byLanguage: Record<string, number> = {};
-  
+
   for (const q of filteredItems) {
     const d = q.difficulty as keyof typeof byDifficulty;
     if (d in byDifficulty) byDifficulty[d]++;
@@ -72,10 +71,10 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <h3 className="text-sm font-semibold text-neutral-300 w-24">Languages:</h3>
             <div className="flex flex-wrap gap-2">
-              <FilterPill 
-                label="All" 
-                active={!filterLang} 
-                onClick={() => setFilterLang(null)} 
+              <FilterPill
+                label="All"
+                active={!filterLang}
+                onClick={() => setFilterLang(null)}
               />
               {allLanguages.map(([lang, count]) => (
                 <FilterPill
@@ -87,7 +86,7 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
               ))}
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-3 border-t border-neutral-800/50">
             <h3 className="text-sm font-semibold text-neutral-300 w-24">Difficulty:</h3>
             <div className="flex flex-wrap gap-2">
@@ -126,9 +125,6 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
                     </span>
                   </div>
                   <p className="text-sm text-neutral-200 truncate pr-8">{q.question_text}</p>
-                  <p className="text-xs text-neutral-600 mt-1 truncate font-mono">
-                    {q.code_snippet.split("\n")[0]}
-                  </p>
                 </Link>
                 {/* Delete button inline */}
                 <button
@@ -153,11 +149,10 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-        active 
-          ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)] border border-purple-500" 
-          : "bg-neutral-800 text-neutral-400 border border-transparent hover:bg-neutral-700 hover:text-neutral-200"
-      }`}
+      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${active
+        ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)] border border-purple-500"
+        : "bg-neutral-800 text-neutral-400 border border-transparent hover:bg-neutral-700 hover:text-neutral-200"
+        }`}
     >
       {label}
     </button>
