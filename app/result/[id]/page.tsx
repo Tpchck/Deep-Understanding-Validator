@@ -17,7 +17,6 @@ export default async function ResultPage({ params }: PageProps){
     const {id} = await params; 
 
     if (isTempStoreMode()) {
-        // In-memory mode
         const tempSession = getTempSession(id);
         if (!tempSession) notFound();
         return (
@@ -36,7 +35,6 @@ export default async function ResultPage({ params }: PageProps){
         );
     }
 
-    // Supabase mode
     const supabase = await createClient();
 
     const { data: current, error } = await supabase

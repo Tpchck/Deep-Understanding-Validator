@@ -57,7 +57,6 @@ export default function DashboardInput() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Submit on Cmd/Ctrl + Enter
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       handleSubmit(e);
@@ -115,7 +114,6 @@ export default function DashboardInput() {
           </button>
         </div>
         
-        {/* Scroll anchor placed at the very bottom of the form */}
         <div ref={bottomRef} className="h-4 w-full" />
       </form>
     </div>

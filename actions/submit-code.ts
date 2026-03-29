@@ -44,7 +44,7 @@ export async function processCodeSubmission(formData: FormData) {
             // In-memory store (for debugging / when Supabase is unavailable)
             saveTempSession(sessionId, {
                 language: detectedLanguage,
-                question: '', // Empty initially, we will stream it
+                question: '',
                 correctAnswer: '',
                 explanation: '',
                 codeSnippet: code,
@@ -53,13 +53,13 @@ export async function processCodeSubmission(formData: FormData) {
             // Supabase
             const { error: dbError } = await supabase.from("questions").insert({
                 id: sessionId,
-                question_text: '', // Empty initially
+                question_text: '',
                 code_snippet: code,
                 options: [],
                 correct_option_index: 0,
                 explanation: '',
-                difficulty: 'pending', // AI will overwrite this
-                difficulty_level: 'pending', // AI will overwrite this
+                difficulty: 'pending',
+                difficulty_level: 'pending',
                 language: detectedLanguage,
                 user_id: user?.id ?? null,
                 session_id: sessionId,
