@@ -29,10 +29,11 @@ export async function GET(request: Request) {
 
     console.log('[Cron] Supabase keep-alive successful.');
     return NextResponse.json({ success: true, message: 'Database is awake!' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Cron] Error keeping Supabase alive:', error);
+    const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
