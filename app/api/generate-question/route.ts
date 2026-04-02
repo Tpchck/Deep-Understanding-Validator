@@ -3,6 +3,7 @@ import { groq, MODEL_NAME } from '@/lib/ai';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest } from 'next/server';
+import { checkInputValidity } from '@/lib/bouncer';
 
 export const maxDuration = 30;
 
@@ -21,6 +22,14 @@ export async function POST(req: NextRequest) {
   }
 
   const { prompt: code, sessionId } = await req.json();
+
+  const bouncerResult = await checkInputValidity(code);
+  if (!bouncerResult.isValid) {
+    return new Response(
+      `REJECTED: DUV Security blocked this input. Reason: ${bouncerResult.reason}`,
+      { status: 200 }
+    );
+  }
 
   const prompt = `You are a friendly, senior computer science mentor conducting a code review. 
 You receive a code snippet from a developer.
