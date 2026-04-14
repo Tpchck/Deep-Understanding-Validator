@@ -63,7 +63,7 @@ export default function FinalVerdict({ verdict, bestScore, weakSpots, explanatio
       )}
 
       <div className="mt-6 pt-4 border-t border-neutral-700">
-        <Link href="/" className="text-purple-400 hover:underline text-sm">
+        <Link href="/dashboard/new" className="text-purple-400 hover:underline text-sm">
           ← Try another snippet
         </Link>
       </div>

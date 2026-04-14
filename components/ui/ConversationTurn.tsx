@@ -1,4 +1,5 @@
 import type { QuizTurn } from '@/types';
+import Image from 'next/image';
 import LoadingLogo from '@/components/ui/LoadingLogo';
 import WordReveal from '@/components/ui/WordReveal';
 
@@ -33,14 +34,13 @@ export default function ConversationTurn({ turn, finished, animate = false }: Co
       </div>
 
       <div className="flex gap-3 justify-end">
-        <div className="bg-purple-900/30 border border-purple-800 rounded-lg p-4 max-w-[85%]">
+        <div className="bg-purple-900/30 border border-purple-800 rounded-lg p-3 sm:p-4 max-w-[90%] sm:max-w-[85%]">
           <span className="text-purple-100 whitespace-pre-wrap word-break-words font-mono text-sm leading-relaxed">{turn.userAnswer}</span>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/avatar.png" alt="" className="w-8 h-8 rounded-full object-cover shrink-0 border border-purple-500/30" />
+        <Image src="/avatar.png" alt="" width={32} height={32} className="rounded-full object-cover shrink-0 border border-purple-500/30" />
       </div>
 
-      <div className={`p-4 rounded-lg border ml-[3.75rem] ${colors.bg}`}>
+      <div className={`p-3 sm:p-4 rounded-lg border ml-0 sm:ml-[3.75rem] ${colors.bg}`}>
         <div className="flex items-center gap-3 mb-2">
           <div className="text-2xl font-bold" style={{ color: colors.text }}>
             {turn.score}%

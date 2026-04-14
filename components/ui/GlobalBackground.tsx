@@ -11,6 +11,10 @@ export default function GlobalBackground() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Respect reduced-motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
     let raf = 0;
     const particles: { x: number; y: number; r: number; vx: number; vy: number; alpha: number; colorOffset: number }[] = [];
 
@@ -21,8 +25,8 @@ export default function GlobalBackground() {
 
     const init = () => {
       particles.length = 0;
-      // Slightly more particles for "alive" feel, but within performance limits
-      const count = canvas.width < 768 ? 40 : 70;
+      // Fewer particles on mobile for better battery life
+      const count = canvas.width < 768 ? 25 : 50;
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -31,7 +35,7 @@ export default function GlobalBackground() {
           vx: (Math.random() - 0.5) * 0.35,
           vy: (Math.random() - 0.5) * 0.35,
           alpha: Math.random() * 0.4 + 0.1,
-          colorOffset: Math.random() * Math.PI * 2, // for color shifting
+          colorOffset: Math.random() * Math.PI * 2,
         });
       }
     };
@@ -39,17 +43,26 @@ export default function GlobalBackground() {
     resize();
     init();
 
+    // Throttle to ~30fps instead of 60fps to cut CPU usage in half
+    let lastFrameTime = 0;
+    const FRAME_INTERVAL = 1000 / 30; // 30fps
+    const CONNECTION_DIST = 120; // reduced from 150 to cut O(n²) checks
+
     let time = 0;
-    const draw = () => {
+    const draw = (now: number) => {
+      raf = requestAnimationFrame(draw);
+
+      const delta = now - lastFrameTime;
+      if (delta < FRAME_INTERVAL) return;
+      lastFrameTime = now - (delta % FRAME_INTERVAL);
+
       time += 0.01;
-      // Fade out previous frame instead of clearRect for a slight trail
       ctx.fillStyle = 'rgba(10, 10, 10, 0.3)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        
-        // Gentle drift upward/diagonal
+
         p.x += p.vx + Math.sin(time + p.colorOffset) * 0.2;
         p.y += p.vy - 0.1;
 
@@ -58,7 +71,6 @@ export default function GlobalBackground() {
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
-        // Shift color between purple (168, 85, 247) and fuchsia (217, 70, 239)
         const mix = (Math.sin(time * 2 + p.colorOffset) + 1) / 2;
         const r = Math.floor(168 + (217 - 168) * mix);
         const g = Math.floor(85 + (70 - 85) * mix);
@@ -69,27 +81,27 @@ export default function GlobalBackground() {
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha})`;
         ctx.fill();
 
-        // Connect nearby
+        // Connect nearby — reduced radius for perf
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {
+          const distSq = dx * dx + dy * dy;
+          // Use squared distance to avoid expensive Math.sqrt
+          if (distSq < CONNECTION_DIST * CONNECTION_DIST) {
+            const dist = Math.sqrt(distSq);
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - dist / 150) * 0.15})`;
+            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - dist / CONNECTION_DIST) * 0.15})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
       }
-
-      raf = requestAnimationFrame(draw);
     };
 
-    draw();
+    raf = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
 
     return () => {

@@ -2,6 +2,7 @@
 
 import { signOut } from "@/actions/auth";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import LoadingLogo from "@/components/ui/LoadingLogo";
@@ -222,8 +223,7 @@ export default function Sidebar({ email, nickname, history, isCollapsed, onToggl
       <div className="p-4 border-t border-neutral-800">
         <Link href="/dashboard/settings" className="flex items-center gap-3 mb-3 relative overflow-hidden flex-nowrap shrink-0 group hover:bg-neutral-900/50 p-1 -m-1 rounded-lg transition-colors">
           {/* Avatar */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/avatar.png" alt="" className="w-8 h-8 rounded-full object-cover shrink-0 border border-purple-500/30" />
+          <Image src="/avatar.png" alt="" width={32} height={32} className="rounded-full object-cover shrink-0 border border-purple-500/30" />
           <div className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}>
             {nickname ? (
               <>

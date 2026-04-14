@@ -7,6 +7,7 @@ import { saveTurns } from '@/actions/save-turns';
 import type { QuizTurn } from '@/types';
 import CodeBlock from '@/components/ui/CodeBlock';
 import ConversationTurn from '@/components/ui/ConversationTurn';
+import DifficultyBadge from '@/components/ui/DifficultyBadge';
 import FinalVerdict from '@/components/ui/FinalVerdict';
 import LoadingLogo from '@/components/ui/LoadingLogo';
 import WordReveal from '@/components/ui/WordReveal';
@@ -192,10 +193,10 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
   const initialCount = initialTurns.length;
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto p-6">
+    <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
       {/* header */}
       <div className="flex items-center justify-between text-sm mb-2">
-        <span className="text-neutral-400">Deep Understanding Check</span>
+        <span className="text-neutral-400 text-xs sm:text-sm">Deep Understanding Check</span>
         <div className="flex items-center gap-2">
           <span className="text-xs font-mono text-purple-400 px-2 py-0.5 bg-purple-500/10 rounded">{language}</span>
           <DifficultyBadge difficulty={displayDifficulty} />
@@ -250,7 +251,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
 
           {/* answer input */}
           {!generatingInitial && activeQuestion && (
-            <div className="ml-[3.75rem] space-y-3">
+            <div className="ml-0 sm:ml-[3.75rem] space-y-3">
               <label htmlFor="answer-input" className="sr-only">Your answer</label>
               <div
                 className={`relative rounded-2xl bg-neutral-900/80 border border-neutral-700 shadow-sm focus-within:shadow-lg focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-400 transition-all duration-300 overflow-hidden ${evaluating ? 'opacity-60 pointer-events-none' : ''}`}
@@ -312,23 +313,4 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
     </div>
   );
 }
-
-function DifficultyBadge({ difficulty }: { difficulty: string }) {
-  if (difficulty === 'pending') {
-    return (
-      <span className="text-[10px] px-2 py-0.5 rounded-full border bg-neutral-800/50 text-neutral-500 border-neutral-700/50 animate-pulse">
-        analyzing...
-      </span>
-    );
-  }
-  const colors: Record<string, string> = {
-    beginner: "bg-green-500/10 text-green-400 border-green-500/20",
-    intermediate: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    advanced: "bg-red-500/10 text-red-400 border-red-500/20",
-  };
-  return (
-    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${colors[difficulty] ?? "bg-neutral-800 text-neutral-400 border-neutral-700"}`}>
-      {difficulty}
-    </span>
-  );
-}
+
