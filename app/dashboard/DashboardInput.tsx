@@ -89,7 +89,7 @@ export default function DashboardInput() {
               textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
               preClassName="font-mono text-sm leading-6"
               className="w-full h-full text-white font-mono text-sm min-h-[70px]"
-              placeholder="Paste your code... (Ctrl+Enter to Analyze)"
+              placeholder="Paste your code here..."
               onKeyDown={handleKeyDown}
               disabled={loading}
             />
@@ -108,10 +108,11 @@ export default function DashboardInput() {
           <button
             type="submit"
             disabled={loading || isEmpty}
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white text-base font-medium transition-all duration-300 shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="px-6 sm:px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? <><LoadingLogo size={20} /> Analyzing...</> : "Submit & Analyze →"}
           </button>
+          <p className="text-center text-[10px] text-neutral-600 mt-1.5 hidden sm:block">Ctrl+Enter to submit</p>
         </div>
         
         <div ref={bottomRef} className="h-4 w-full" />

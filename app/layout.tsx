@@ -36,7 +36,6 @@ export default async function RootLayout({
 }>) {
   validateEnv();
 
-  /* Detect whether we are on the public landing page via middleware-injected header */
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "/";
   const isLandingPage = pathname === "/";

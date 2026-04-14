@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { deleteAnalysis } from "@/actions/history";
+import DifficultyBadge from "@/components/ui/DifficultyBadge";
 
 interface DashboardHistoryProps {
   initialItems: {
@@ -58,7 +59,7 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
   return (
     <div className="space-y-8 animate-fade-in">
       {/* stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <StatCard label="Total Analyses" value={total} />
         <StatCard label="Easy" value={byDifficulty.easy} color="text-green-400" />
         <StatCard label="Medium" value={byDifficulty.medium} color="text-yellow-400" />
@@ -67,7 +68,7 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
 
       {/* filters */}
       {items.length > 0 && (
-        <div className="space-y-4 bg-neutral-900/40 p-5 rounded-2xl border border-neutral-800">
+        <div className="space-y-4 bg-neutral-900/40 p-3 sm:p-5 rounded-2xl border border-neutral-800">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <h3 className="text-sm font-semibold text-neutral-300 w-24">Languages:</h3>
             <div className="flex flex-wrap gap-2">
@@ -113,7 +114,7 @@ export default function DashboardHistory({ initialItems }: DashboardHistoryProps
               <div key={q.id} className="group relative">
                 <Link
                   href={`/result/${q.id}`}
-                  className="block p-4 rounded-lg bg-neutral-900/80 border border-neutral-800 hover:border-purple-500/50 hover:bg-neutral-900 transition-all duration-300"
+                  className="block p-3 sm:p-4 rounded-lg bg-neutral-900/80 border border-neutral-800 hover:border-purple-500/50 hover:bg-neutral-900 transition-all duration-300"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -161,22 +162,11 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
 
 function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
-    <div className="p-5 rounded-2xl bg-neutral-900/60 border border-neutral-800 backdrop-blur shadow-sm">
-      <p className="text-xs text-neutral-500 mb-1">{label}</p>
-      <p className={`text-3xl font-bold tracking-tight ${color ?? "text-white"}`}>{value}</p>
+    <div className="p-3 sm:p-5 rounded-2xl bg-neutral-900/60 border border-neutral-800 backdrop-blur shadow-sm">
+      <p className="text-[10px] sm:text-xs text-neutral-500 mb-1">{label}</p>
+      <p className={`text-2xl sm:text-3xl font-bold tracking-tight ${color ?? "text-white"}`}>{value}</p>
     </div>
   );
 }
 
-function DifficultyBadge({ difficulty }: { difficulty: string }) {
-  const colors: Record<string, string> = {
-    easy: "bg-green-500/10 text-green-400 border-green-500/20",
-    medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    hard: "bg-red-500/10 text-red-400 border-red-500/20",
-  };
-  return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full border ${colors[difficulty] ?? "bg-neutral-800 text-neutral-400 border-neutral-700"}`}>
-      {difficulty}
-    </span>
-  );
-}
+
