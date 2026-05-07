@@ -1,7 +1,7 @@
 'use server';
 
 import { generateText } from 'ai';
-import { groq, MODEL_NAME } from '@/lib/ai';
+import { aiClient, MODEL_NAME } from '@/lib/ai';
 import type { EvaluationResult } from "@/types";
 
 export async function evaluateAnswer(
@@ -65,30 +65,42 @@ For weakSpots: identify SPECIFIC things the student got wrong, described incorre
 - If score >= 80: the student clearly understands, return an empty weakSpots array.
 - If score < 80: you MUST return at least one weakSpot. NEVER return an empty weakSpots array if the score is below 80. Even if the answer is mostly right, pinpoint the missing piece.
 
-Return EXACTLY a raw JSON object (no markdown formatting, no backticks) with this exact schema:
-{
-  "score": number,
-  "feedback": "string",
-  "weakSpots": ["string"]
-}`;
+Return EXACTLY the following XML format (do not use markdown blocks):
+<evaluation>
+  <score>number (0-100)</score>
+  <feedback>your feedback here</feedback>
+  <weakSpots>
+    <spot>first weak spot</spot>
+    <spot>second weak spot</spot>
+  </weakSpots>
+</evaluation>`;
 
   try {
     const { text } = await generateText({
-      model: groq(MODEL_NAME),
+      model: aiClient(MODEL_NAME),
       prompt: prompt,
       temperature: 0.3,
-      maxOutputTokens: 500,
+      maxOutputTokens: 1024,
     });
 
-    console.log("[evaluate-answer] Raw text from Groq:", text);
+    console.log("[evaluate-answer] Raw text from Gemini:", text);
 
-    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    const object = JSON.parse(cleanText);
+    const scoreMatch = text.match(/<score>\s*(\d+)\s*<\/score>/i);
+    const feedbackMatch = text.match(/<feedback>\s*([\s\S]*?)\s*<\/feedback>/i);
+    const weakSpotsBlockMatch = text.match(/<weakSpots>\s*([\s\S]*?)\s*<\/weakSpots>/i);
 
-    console.log("[evaluate-answer] Parsed JSON:", object);
+    const recoveredScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+    const recoveredFeedback = feedbackMatch ? feedbackMatch[1].trim() : "Unable to parse feedback.";
+    
+    let recoveredWeakSpots: string[] = [];
+    if (weakSpotsBlockMatch && weakSpotsBlockMatch[1]) {
+      const spotsArea = weakSpotsBlockMatch[1];
+      const spotMatches = [...spotsArea.matchAll(/<spot>\s*([\s\S]*?)\s*<\/spot>/ig)];
+      recoveredWeakSpots = spotMatches.map(m => m[1].trim());
+    }
 
-    const score = typeof object.score === 'number' ? object.score : 0;
-    const weakSpots: string[] = Array.isArray(object.weakSpots) ? object.weakSpots : [];
+    const score = recoveredScore;
+    const weakSpots = recoveredWeakSpots;
 
     // Safety net: if score < 80, ensure at least one weakSpot exists
     if (score >= 20 && score < 80 && weakSpots.length === 0) {
@@ -97,7 +109,7 @@ Return EXACTLY a raw JSON object (no markdown formatting, no backticks) with thi
 
     return {
       score,
-      feedback: typeof object.feedback === 'string' ? object.feedback : 'Unable to parse feedback.',
+      feedback: recoveredFeedback,
       weakSpots,
       understood: score >= 80,
     };
