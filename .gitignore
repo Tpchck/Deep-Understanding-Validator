@@ -71,3 +71,4 @@ _agents/
 
 # Logs
 activity.log
+scripts/*.js
