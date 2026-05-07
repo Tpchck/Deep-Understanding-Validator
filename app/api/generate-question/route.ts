@@ -1,5 +1,5 @@
 import { streamText } from 'ai';
-import { groq, MODEL_NAME } from '@/lib/ai';
+import { aiClient, MODEL_NAME } from '@/lib/ai';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest } from 'next/server';
@@ -94,7 +94,7 @@ ${code}`;
   try {
     console.log("[generate-question] Starting CoT streamText for code snippet...");
     result = streamText({
-      model: groq(MODEL_NAME),
+      model: aiClient(MODEL_NAME),
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.75, // balanced for reasoning and natural tone
       maxOutputTokens: 1000,

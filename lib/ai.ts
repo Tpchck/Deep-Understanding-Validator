@@ -1,8 +1,8 @@
-import { createGroq } from '@ai-sdk/groq';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
-// Centralized Groq client using official Groq provider
-export const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
+// Centralized AI client using official Google provider
+export const aiClient = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
-export const MODEL_NAME = 'llama-3.3-70b-versatile';
+export const MODEL_NAME = 'gemini-2.5-flash';

@@ -1,8 +1,8 @@
 import { generateText } from 'ai';
-import { groq } from '@/lib/ai';
+import { aiClient } from '@/lib/ai';
 import hljs from 'highlight.js';
 
-const BOUNCER_MODEL = 'llama-3.1-8b-instant';
+const BOUNCER_MODEL = 'gemini-2.5-flash-lite';
 
 export interface BouncerResult {
   isValid: boolean;
@@ -37,17 +37,13 @@ If the input is invalid, respond with exactly: "INVALID: [Reason why it was reje
 Context from preliminary static analysis:
 - Highlight.js detected language: ${detectedLanguage} 
 - Highlight.js relevance score: ${relevance} (low score might mean plain text)
-
-Input to analyze:
-\`\`\`
-${input}
-\`\`\`
 `;
 
   try {
     const { text } = await generateText({
-      model: groq(BOUNCER_MODEL),
-      messages: [{ role: 'system', content: systemPrompt }],
+      model: aiClient(BOUNCER_MODEL),
+      system: systemPrompt,
+      prompt: `Input to analyze:\n\`\`\`\n${input}\n\`\`\``,
       temperature: 0.1,
       maxOutputTokens: 50,
     });

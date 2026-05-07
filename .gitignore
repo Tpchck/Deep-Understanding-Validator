@@ -40,8 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-github-activity-generator/ 
-node_modules/  
 
 # IDEs and Editors
 .idea/
@@ -67,3 +65,9 @@ Desktop.ini
 # Supabase
 /supabase/.temp/
 /supabase/.branch/
+
+# Agent instructions (local only)
+_agents/
+
+# Logs
+activity.log

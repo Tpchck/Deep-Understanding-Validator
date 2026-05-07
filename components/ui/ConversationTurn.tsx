@@ -28,7 +28,7 @@ export default function ConversationTurn({ turn, finished, animate = false }: Co
             : <p className="text-white whitespace-pre-wrap" suppressHydrationWarning>{turn.question}</p>
           }
           {turn.isFollowUp && (
-            <span className="text-xs text-yellow-500 mt-1 inline-block">Follow-up question</span>
+            <span className="text-xs text-yellow-500 mt-2 block font-medium">Follow-up question</span>
           )}
         </div>
       </div>

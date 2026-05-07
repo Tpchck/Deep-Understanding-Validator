@@ -217,7 +217,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
             {completion ? (
               <>
                 <p className="text-white">{completion}</p>
-                <span className="text-xs text-yellow-500 mt-1 inline-block">Follow-up question</span>
+                <span className="text-xs text-yellow-500 mt-2 block font-medium">Follow-up question</span>
               </>
             ) : (
               <div className="flex items-center gap-3">
@@ -244,7 +244,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
                 </div>
               )}
               {followUpQuestion && (
-                <span className="text-xs text-yellow-500 mt-1 inline-block">Follow-up question</span>
+                <span className="text-xs text-yellow-500 mt-2 block font-medium">Follow-up question</span>
               )}
             </div>
           </div>
