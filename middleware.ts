@@ -2,25 +2,45 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 function getTrustedOrigins(): string[] {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const origins = ['http://localhost:3000'];
-  if (siteUrl) origins.push(siteUrl.replace(/\/$/, ''));
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    origins.push(process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, ''));
+  }
   return origins;
 }
 
-export async function proxy(request: NextRequest) {
+function isTrustedOrigin(originOrReferer: string): boolean {
   const trustedOrigins = getTrustedOrigins();
+  
+  // Allow explicitly trusted origins (localhost and NEXT_PUBLIC_SITE_URL)
+  if (trustedOrigins.some(o => originOrReferer.startsWith(o))) {
+    return true;
+  }
+  
+  // Allow Vercel preview domains dynamically
+  try {
+    const url = new URL(originOrReferer);
+    if (url.hostname.endsWith('.vercel.app')) {
+      return true;
+    }
+  } catch (e) {
+    // Invalid URL
+  }
+  
+  return false;
+}
 
+export async function middleware(request: NextRequest) {
   // 1. CORS check
   const origin = request.headers.get('origin');
-  if (origin && !trustedOrigins.includes(origin)) {
+  if (origin && !isTrustedOrigin(origin)) {
     return new NextResponse('CORS Forbidden', { status: 403 });
   }
 
   // 2. CSRF (Referer check for mutating methods)
   if (["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
     const referer = request.headers.get('referer');
-    if (referer && !trustedOrigins.some(o => referer.startsWith(o))) {
+    if (referer && !isTrustedOrigin(referer)) {
       return new NextResponse('CSRF Forbidden', { status: 403 });
     }
   }
