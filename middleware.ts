@@ -23,7 +23,7 @@ function isTrustedOrigin(originOrReferer: string): boolean {
     if (url.hostname.endsWith('.vercel.app')) {
       return true;
     }
-  } catch (e) {
+  } catch {
     // Invalid URL
   }
   
