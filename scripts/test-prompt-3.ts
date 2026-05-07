@@ -45,7 +45,7 @@ Return EXACTLY the following XML format (do not use markdown blocks):
       model: aiClient('gemini-2.5-flash'),
       prompt: prompt,
       temperature: 0.3,
-      // @ts-ignore
+      // @ts-expect-error Vercel SDK requires maxTokens instead of maxOutputTokens
       maxTokens: 1000,
     });
     
