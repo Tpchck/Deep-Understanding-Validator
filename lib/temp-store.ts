@@ -1,7 +1,16 @@
-// ⚠️ TEMPORARY: in-memory store while Supabase is down
-// TODO: Remove this file once Supabase is back up
+/**
+ * In-memory session store for fallback/development use when Supabase is unavailable.
+ *
+ * Sessions are automatically evicted after TTL_MS to prevent unbounded memory growth
+ * in long-running serverless instances.
+ */
 
 import type { QuizTurn } from "@/types";
+
+/** Time-to-live for each session entry (2 hours). */
+const TTL_MS = 2 * 60 * 60 * 1000;
+/** How often to run the cleanup sweep (10 minutes). */
+const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
 
 export interface TempSession {
   language: string;
@@ -17,6 +26,7 @@ export interface TempSession {
 // Use globalThis to survive Next.js dev hot reloads
 const globalStore = globalThis as typeof globalThis & {
   __tempSessionStore?: Map<string, TempSession>;
+  __tempStoreCleanupTimer?: ReturnType<typeof setInterval>;
 };
 
 if (!globalStore.__tempSessionStore) {
@@ -24,6 +34,28 @@ if (!globalStore.__tempSessionStore) {
 }
 
 const store = globalStore.__tempSessionStore;
+
+// ── TTL-based cleanup ────────────────────────────────────
+function evictExpiredSessions() {
+  const now = Date.now();
+  for (const [id, session] of store) {
+    const age = now - new Date(session.createdAt).getTime();
+    if (age > TTL_MS) {
+      store.delete(id);
+    }
+  }
+}
+
+// Start the cleanup timer once (idempotent across hot reloads)
+if (!globalStore.__tempStoreCleanupTimer) {
+  globalStore.__tempStoreCleanupTimer = setInterval(evictExpiredSessions, CLEANUP_INTERVAL_MS);
+  // Allow the Node.js process to exit cleanly even if the timer is active
+  if (typeof globalStore.__tempStoreCleanupTimer === 'object' && 'unref' in globalStore.__tempStoreCleanupTimer) {
+    globalStore.__tempStoreCleanupTimer.unref();
+  }
+}
+
+// ── Public API ───────────────────────────────────────────
 
 export function saveTempSession(sessionId: string, session: Omit<TempSession, 'turns' | 'finished' | 'createdAt'>) {
   store.set(sessionId, { ...session, turns: [], finished: false, createdAt: new Date().toISOString() });

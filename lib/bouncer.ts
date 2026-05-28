@@ -3,6 +3,7 @@ import { aiClient } from '@/lib/ai';
 import hljs from 'highlight.js';
 
 const BOUNCER_MODEL = 'gemini-2.5-flash-lite';
+const LOG_PREFIX = '[Bouncer]';
 
 export interface BouncerResult {
   isValid: boolean;
@@ -40,6 +41,7 @@ Context from preliminary static analysis:
 `;
 
   try {
+    const startMs = Date.now();
     const { text } = await generateText({
       model: aiClient(BOUNCER_MODEL),
       system: systemPrompt,
@@ -47,18 +49,22 @@ Context from preliminary static analysis:
       temperature: 0.1,
       maxOutputTokens: 50,
     });
+    const elapsedMs = Date.now() - startMs;
 
     const responseText = text.trim().toUpperCase();
 
     if (responseText.includes('INVALID')) {
       const match = text.match(/INVALID:?\s*(.*)/i);
       const reason = match && match[1] ? match[1].trim() : 'Input resembles plain text, not code.';
+      console.warn(`${LOG_PREFIX} REJECTED (${elapsedMs}ms) lang=${detectedLanguage} relevance=${relevance} reason="${reason}"`);
       return { isValid: false, reason };
     }
 
+    console.log(`${LOG_PREFIX} APPROVED (${elapsedMs}ms) lang=${detectedLanguage} relevance=${relevance}`);
     return { isValid: true, detectedLanguage };
   } catch (error) {
-    console.error('[Bouncer] Engine error:', error);
+    console.error(`${LOG_PREFIX} Engine error:`, error);
+    // Fail open: allow the request if the bouncer itself errors
     return { isValid: true };
   }
 }

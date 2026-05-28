@@ -1,11 +1,33 @@
-// simple in-memory rate limiter per user
-// in production you'd use Redis/Upstash, but this works for a single-instance deploy
+/**
+ * Simple in-memory sliding-window rate limiter.
+ *
+ * Tracks request counts per user within a fixed time window.
+ * In production, consider replacing with Redis/Upstash for
+ * multi-instance deployments; this implementation is suitable
+ * for single-instance Vercel serverless functions.
+ */
 
-const requestCounts = new Map<string, { count: number; resetAt: number }>();
+/** Per-user request tracking entry. */
+interface RateLimitEntry {
+  /** Number of requests made in the current window. */
+  count: number;
+  /** Timestamp (ms) when the current window expires. */
+  resetAt: number;
+}
 
-const WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 5;      // 5 submissions per minute per user
+const requestCounts = new Map<string, RateLimitEntry>();
 
+/** Duration of the rate limit window in milliseconds (1 minute). */
+const WINDOW_MS = 60 * 1000;
+/** Maximum allowed requests per user within a single window. */
+const MAX_REQUESTS = 5;
+
+/**
+ * Check whether a user is allowed to make a request.
+ *
+ * @param userId - Unique identifier for the user (Supabase UID or IP fallback).
+ * @returns `allowed: true` if under the limit, otherwise `allowed: false` with `retryAfterMs`.
+ */
 export function checkRateLimit(userId: string): { allowed: boolean; retryAfterMs?: number } {
   const now = Date.now();
   const entry = requestCounts.get(userId);

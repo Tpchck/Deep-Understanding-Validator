@@ -8,7 +8,7 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
   [![Supabase](https://img.shields.io/badge/Supabase-Database-blue?logo=supabase)](https://supabase.com/)
-  [![Groq](https://img.shields.io/badge/Powered%20by-Groq-orange)](https://groq.com/)
+  [![Gemini](https://img.shields.io/badge/Powered%20by-Gemini-blue?logo=google)](https://ai.google.dev/)
 
   [🚀 **Live Demo**](https://deep-understanding-validator.vercel.app)
 </div>
@@ -26,7 +26,7 @@ Traditional tests check for syntax; DUV checks for **comprehension**. It analyze
 - **🧠 Contextual Interrogation**: Generates non-trivial questions based on the logic of your specific code.
 - **🔄 Dynamic Follow-ups**: If your answer is vague, the AI probes deeper to find the limits of your understanding.
 - **🛡️ Security Focused**: Built-in sanitization (DOMPurify) and rate limiting to prevent abuse.
-- **⚡ High Performance**: Powered by Groq Llama models for near-instant responses.
+- **⚡ High Performance**: Powered by Google Gemini 2.5 Flash for near-instant responses.
 - **💾 Persistent Sessions**: Option to store conversations via Supabase for later review.
 
 ## 🛠️ Tech Stack
@@ -35,7 +35,7 @@ Traditional tests check for syntax; DUV checks for **comprehension**. It analyze
 | :--- | :--- |
 | **Frontend** | [Next.js](https://nextjs.org/) (App Router), [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/) |
 | **Backend** | [React Server Actions](https://react.dev/reference/react/use-server), [Zod](https://zod.dev/) |
-| **AI Layer** | [Groq SDK](https://groq.com/), [Vercel AI SDK](https://sdk.vercel.ai/) |
+| **AI Layer** | [Google Gemini](https://ai.google.dev/), [Vercel AI SDK](https://sdk.vercel.ai/) |
 | **Database** | [Supabase](https://supabase.com/) |
 | **Testing** | [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) |
 
@@ -53,7 +53,7 @@ Copy `.env.example` to `.env.local` and fill in your keys:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-GROQ_API_KEY=your_groq_api_key
+GEMINI_API_KEY=your_gemini_api_key
 
 # Options: "temp" or "supabase"
 STORAGE_MODE=supabase
