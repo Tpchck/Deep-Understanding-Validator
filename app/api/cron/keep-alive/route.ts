@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// This endpoint receives a GET request from Vercel Cron and queries Supabase
-// to prevent it from going to sleep after 7 days of inactivity (Free tier).
+// Vercel Cron calls this endpoint to keep the Supabase Free-tier database
+// from pausing after 7 days of inactivity.
+// Schedule is configured in vercel.json.
 export async function GET(request: Request) {
-  // Optional: Add basic security to ensure only Vercel can trigger this if you set up CRON_SECRET.
+  // Verify the request comes from Vercel Cron (if CRON_SECRET is set)
   const authHeader = request.headers.get('authorization');
   if (
     process.env.CRON_SECRET &&
@@ -14,9 +15,14 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createClient();
-    
-    // Perform a lightweight query to wake up/keep alive the database
+    // Use a plain supabase-js client instead of the SSR client,
+    // because cron requests have no cookies / user session.
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Lightweight read query — just enough to prevent the DB from sleeping
     const { error } = await supabase.from('questions').select('id').limit(1);
 
     if (error) {
@@ -27,11 +33,11 @@ export async function GET(request: Request) {
       );
     }
 
-    console.log('[Cron] Supabase keep-alive successful.');
+    console.log(`[Cron] Supabase keep-alive OK @ ${new Date().toISOString()}`);
     return NextResponse.json({ success: true, message: 'Database is awake!' });
   } catch (error: unknown) {
     console.error('[Cron] Error keeping Supabase alive:', error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
+    const msg = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { success: false, error: msg },
       { status: 500 }
