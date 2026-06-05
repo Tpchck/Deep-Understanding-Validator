@@ -39,7 +39,7 @@ export default async function ResultPage({ params }: PageProps){
 
     const { data: current, error } = await supabase
         .from("questions")
-        .select("id, question_text, code_snippet, language, explanation, turns, finished, follow_up_question")
+        .select("id, question_text, code_snippet, language, explanation, turns, finished, follow_up_question, difficulty_level")
         .eq("id", id)
         .single();
 
@@ -57,6 +57,7 @@ export default async function ResultPage({ params }: PageProps){
                 initialTurns={(current.turns as unknown as QuizTurn[]) ?? []}
                 initialFinished={current.finished ?? false}
                 initialFollowUp={(current.follow_up_question as string) ?? null}
+                initialDifficulty={(current.difficulty_level as string) ?? undefined}
             />
         </main>
     );

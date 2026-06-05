@@ -89,9 +89,34 @@ Return EXACTLY the following XML format (do not use markdown blocks):
     const feedbackMatch = text.match(/<feedback>\s*([\s\S]*?)\s*<\/feedback>/i);
     const weakSpotsBlockMatch = text.match(/<weakSpots>\s*([\s\S]*?)\s*<\/weakSpots>/i);
 
-    const recoveredScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
-    const recoveredFeedback = feedbackMatch ? feedbackMatch[1].trim() : "Unable to parse feedback.";
-    
+    let recoveredScore: number;
+    let recoveredFeedback: string;
+
+    if (scoreMatch && feedbackMatch) {
+      // Happy path: XML parsed successfully
+      recoveredScore = parseInt(scoreMatch[1], 10);
+      recoveredFeedback = feedbackMatch[1].trim();
+    } else {
+      // Fallback: Gemini didn't return valid XML — extract what we can
+      console.warn("[evaluate-answer] XML parse failed, attempting fallback extraction. Raw:", text.slice(0, 300));
+
+      // Try to extract score from XML tag first, then from any number in text
+      if (scoreMatch) {
+        recoveredScore = parseInt(scoreMatch[1], 10);
+      } else {
+        const fallbackScoreMatch = text.match(/\b(\d{1,3})\s*(?:\/\s*100|%|out of)/i) || text.match(/score[:\s]*(\d{1,3})/i);
+        recoveredScore = fallbackScoreMatch ? Math.min(parseInt(fallbackScoreMatch[1], 10), 100) : 0;
+      }
+
+      // Use feedback from XML if available, otherwise strip tags and use raw text
+      if (feedbackMatch) {
+        recoveredFeedback = feedbackMatch[1].trim();
+      } else {
+        const cleaned = text.replace(/<[^>]+>/g, '').trim();
+        recoveredFeedback = cleaned.slice(0, 500) || "Unable to parse feedback.";
+      }
+    }
+
     let recoveredWeakSpots: string[] = [];
     if (weakSpotsBlockMatch && weakSpotsBlockMatch[1]) {
       const spotsArea = weakSpotsBlockMatch[1];

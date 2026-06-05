@@ -112,7 +112,7 @@ export default function DashboardInput() {
           >
             {loading ? <><LoadingLogo size={20} /> Analyzing...</> : "Submit & Analyze →"}
           </button>
-          <p className="text-center text-[10px] text-neutral-600 mt-1.5 hidden sm:block">Ctrl+Enter to submit</p>
+
         </div>
         
         <div ref={bottomRef} className="h-4 w-full" />

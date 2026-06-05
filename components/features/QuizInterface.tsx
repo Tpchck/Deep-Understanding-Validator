@@ -26,12 +26,13 @@ export interface Props {
   initialTurns: QuizTurn[];
   initialFinished: boolean;
   initialFollowUp: string | null;
+  initialDifficulty?: string;
 }
 
 const MAX_FOLLOWUPS = 3;
 const MIN_SCORE_FOR_FOLLOWUP = 20;
 
-export default function QuizInterface({ sessionId, question, explanation, codeSnippet, language, initialTurns, initialFinished, initialFollowUp }: Props) {
+export default function QuizInterface({ sessionId, question, explanation, codeSnippet, language, initialTurns, initialFinished, initialFollowUp, initialDifficulty }: Props) {
   const [turns, setTurns] = useState<QuizTurn[]>(initialTurns);
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [evaluating, setEvaluating] = useState(false);
@@ -110,7 +111,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
 
   const activeQuestion = followUpQuestion ?? activeQuestionState ?? initialCompletion;
   
-  let displayDifficulty = 'pending';
+  let displayDifficulty = initialDifficulty && initialDifficulty !== 'pending' ? initialDifficulty : 'pending';
   let displayQuestion = activeQuestion;
   
   if (displayQuestion) {
@@ -267,7 +268,7 @@ export default function QuizInterface({ sessionId, question, explanation, codeSn
                     textareaClassName="focus:outline-none placeholder:text-neutral-500 placeholder:italic placeholder:font-sans"
                     preClassName="font-mono text-[15px] leading-relaxed"
                     className="w-full text-white font-mono text-[15px] min-h-[60px]"
-                    placeholder="Explain your understanding or paste fixes... (Ctrl+Enter to Submit)"
+                    placeholder="Explain your understanding or paste fixes..."
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                         e.preventDefault();
