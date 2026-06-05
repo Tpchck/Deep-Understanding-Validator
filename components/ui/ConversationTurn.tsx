@@ -33,11 +33,13 @@ export default function ConversationTurn({ turn, finished, animate = false }: Co
         </div>
       </div>
 
-      <div className="flex gap-3 justify-end">
+      <div className="flex gap-3 justify-end items-start">
         <div className="bg-purple-900/30 border border-purple-800 rounded-lg p-3 sm:p-4 max-w-[90%] sm:max-w-[85%]">
           <span className="text-purple-100 whitespace-pre-wrap word-break-words font-mono text-sm leading-relaxed">{turn.userAnswer}</span>
         </div>
-        <Image src="/avatar.png" alt="" width={32} height={32} className="rounded-full object-cover shrink-0 border border-purple-500/30" />
+        <div className="w-14 h-14 shrink-0 mt-1">
+          <Image src="/avatar.png" alt="" width={56} height={56} className="rounded-full object-cover w-full h-full border border-purple-500/30" />
+        </div>
       </div>
 
       <div className={`p-3 sm:p-4 rounded-lg border ml-0 sm:ml-[3.75rem] ${colors.bg}`}>

@@ -40,6 +40,10 @@ ${weakSpots.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
 Rules for the follow-up question:
 - Pick the MOST IMPORTANT weak spot — the one that reveals the deepest misunderstanding
 - Ask about something SPECIFIC the student said incorrectly or tried to avoid explaining
+- ANCHOR your question to the actual code: reference specific variable names, function calls, or expressions from the snippet
+- Prefer "what-if" scenarios: ask what would happen if a specific part of the code was changed, removed, or given unexpected input
+- Example of a GOOD question: "What would happen if you called greet() with None instead of a string? Where exactly would it fail?"
+- Example of a BAD question: "Can you explain error handling in more detail?"
 - Do NOT repeat the original question in different words
 - Do NOT ask something completely new — stay within what the student already tried to answer
 - Keep it focused and concrete — one specific thing to explain
