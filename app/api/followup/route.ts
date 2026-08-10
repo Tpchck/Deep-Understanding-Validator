@@ -58,7 +58,10 @@ Rules for the follow-up question:
       model: aiClient(MODEL_NAME),
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.4,
-      maxOutputTokens: 800,
+      maxOutputTokens: 2048,
+      providerOptions: {
+        google: { thinkingConfig: { thinkingBudget: 512 } },
+      },
       onError: ({ error }) => {
         console.error("[followup] Stream error:", error);
       },

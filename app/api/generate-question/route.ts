@@ -97,7 +97,10 @@ ${code}`;
       model: aiClient(MODEL_NAME),
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.75, // balanced for reasoning and natural tone
-      maxOutputTokens: 1000,
+      maxOutputTokens: 4096,
+      providerOptions: {
+        google: { thinkingConfig: { thinkingBudget: 1024 } },
+      },
       onFinish: async ({ text }) => {
         if (!text) return;
 
