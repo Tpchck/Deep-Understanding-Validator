@@ -80,7 +80,10 @@ Return EXACTLY the following XML format (do not use markdown blocks):
       model: aiClient(MODEL_NAME),
       prompt: prompt,
       temperature: 0.3,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 2048,
+      providerOptions: {
+        google: { thinkingConfig: { thinkingBudget: 512 } },
+      },
     });
 
     console.log("[evaluate-answer] Raw text from Gemini:", text);
